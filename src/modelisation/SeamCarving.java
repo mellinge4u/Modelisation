@@ -42,14 +42,14 @@ public class SeamCarving {
 	 * Fonction qui un fichier pgm
 	 */
 	public static void writepgm(int[][] image, String filename) {
-		
+
 		StringBuilder sb = new StringBuilder();
 		/* format du fichier */
 		sb.append("P2");
 		/* separateur */
 		sb.append("\n");
 		/* ligne + cologne */
-		sb.append(image.length+" "+image[0].length);
+		sb.append(image.length + " " + image[0].length);
 		/* separateur */
 		sb.append("\n");
 		/* blanc */
@@ -58,17 +58,17 @@ public class SeamCarving {
 		sb.append("\n");
 		int i;
 		int j;
-		
-		for(i = 0 ; i < image.length ; i++){
-			for(j = 0; j < image[i].length; j++){
-				sb.append(image[i][j]+" ");
+
+		for (i = 0; i < image.length; i++) {
+			for (j = 0; j < image[i].length; j++) {
+				sb.append(image[i][j] + " ");
 			}
 			sb.append("\n");
 		}
-		
+
 		try {
 			/* création d'un fichier */
-			java.io.File file = new File(filename+".pgm");
+			java.io.File file = new File(filename + ".pgm");
 			file.createNewFile();
 			try {
 				/* on ouvre le fichier à l'écriture */
@@ -78,11 +78,10 @@ public class SeamCarving {
 				fw.write(sb.toString());
 				try {
 					/* fermeture de l'écriture */
-					fileFlux.close();  
+					fileFlux.close();
 					fw.close();
 					System.out.println("success");
-				}
-				catch (IOException t) {
+				} catch (IOException t) {
 					t.printStackTrace(System.err);
 				}
 			} catch (IOException t) {
@@ -92,7 +91,7 @@ public class SeamCarving {
 			t.printStackTrace(System.err);
 
 		}
-		
+
 	}
 
 	public static int[][] interest(int[][] image) {
@@ -119,10 +118,10 @@ public class SeamCarving {
 		System.out.println("bonjour1");
 		new SeamCarving();
 		System.out.println("bonjour2");
-		//int[][] image = readpgm("C:/Users/erwan/workspace/modelisation/ex1.pgm");
+		// int[][] image =
+		// readpgm("C:/Users/erwan/workspace/modelisation/ex1.pgm");
 		System.out.println("bonjour3");
-		int[][] tab2Int = {
-				{ 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
+		int[][] tab2Int = { { 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7 },
@@ -141,8 +140,15 @@ public class SeamCarving {
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 } };
-		writepgm(tab2Int,"nouveau");
+		writepgm(tab2Int, "nouveau");
 		int[][] interet = interest(tab2Int);
-		System.out.println(interet);
+		int i;
+		int j;
+		for (i = 0; i < interet.length-1; i++) {
+			for (j = 0; j < interet[i].length-1; j++) {
+				System.out.println(interet[i][j]+" ");
+			}
+			//System.out.println("\n");
+		}
 	}
 }

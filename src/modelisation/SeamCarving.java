@@ -146,9 +146,12 @@ public class SeamCarving {
 		int j;
 		for (i = 0; i < tab2Int.length; i++) {
 			for (j = 0; j < tab2Int[i].length; j++) {
+				if (tab2Int[i][j] < 10) {
+					System.out.print(" ");
+				}
 				System.out.print(tab2Int[i][j] + " ");
 			}
-			System.out.print("\n");
+			System.out.println();
 		}
 
 		System.out.println(" ------------- interet ------------- ");

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.io.*;
 import java.util.*;
 
+import sun.security.util.Length;
+
 public class SeamCarving {
 
 	public static int[][] readpgm(String fn) {
@@ -15,7 +17,7 @@ public class SeamCarving {
 			String line = d.readLine();
 			while (line.startsWith("#")) {
 				line = d.readLine();
-			} 
+			}
 			Scanner s = new Scanner(line);
 			int width = s.nextInt();
 			int height = s.nextInt();
@@ -131,6 +133,54 @@ public class SeamCarving {
 		}
 	}
 
+	public static Graph tograph(int[][] itr) {
+		int width = itr[0].length;
+		int height = itr.length;
+		int node = width * height + 2;
+		int i, j;
+		int infinite = width * height;
+		
+		Graph g = new Graph(node);
+
+		/* liaison entre (i,j) et (i,j+1) */
+		for (i = 0; i < height; i++) {
+			for (j = 0; j < width - 1; j++) {
+				g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i, itr[i][j],
+						0));
+			}
+		}
+
+		/* liaison noeuds à t */
+		for (i = 0; i < height; i++) {
+			g.addEdge(new Edge((width - 1) * height + i, node - 2, itr[i][width - 1], 0));
+		}
+
+		/* liaison s à noeuds */
+		for (i = 0; i < height; i++) {
+			g.addEdge(new Edge(node - 1, i, infinite, 0));
+		}
+
+		/*
+		 * 
+		 */
+		for (i = 0; i < height; i++) {
+			for (j = 1; j < width; j++) {
+				g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i,
+						infinite, 0));
+				if (i != 0) {
+					g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i
+							- 1, infinite, 0));
+				}
+				if (i != height - 1) {
+					g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i
+							+ 1, infinite, 0));
+				}
+			}
+		}
+
+		return g;
+	}
+
 	public static void main(String[] args) {
 		int[][] img = { { 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
@@ -163,5 +213,7 @@ public class SeamCarving {
 		System.out.println(" ------------- lecture img 3 ------------- ");
 		int[][] img3 = readpgm("test");
 		printImg(img3);
+		Graph g = tograph(img1p5);
+		g.writeFile("test_img.dot");
 	}
 }

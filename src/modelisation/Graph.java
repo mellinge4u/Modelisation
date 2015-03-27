@@ -11,8 +11,8 @@ public class Graph
 @SuppressWarnings("unchecked")
    public Graph(int N)
 	 {
-		this.V = N;
-		this.E = 0;
+		this.V = N; // node
+		this.E = 0; // lines EDGE
 		 adj = (ArrayList<Edge>[]) new ArrayList[N];
 		for (int v= 0; v < N; v++)
 		  adj[v] = new ArrayList<Edge>(8);

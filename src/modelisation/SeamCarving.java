@@ -8,11 +8,7 @@ public class SeamCarving {
 
 	public static int[][] readpgm(String fn) {
 		try {
-			InputStream f = ClassLoader.getSystemClassLoader()
-					.getResourceAsStream(fn + ".pgm");
-			if (f == null) {
-				System.out.println("PAS DE FICHIER TROUVEE !!!!!!!");
-			}
+			InputStream f = new FileInputStream(fn + ".pgm");
 			InputStreamReader isr = new InputStreamReader(f);
 			BufferedReader d = new BufferedReader(isr);
 			String magic = d.readLine();
@@ -84,7 +80,7 @@ public class SeamCarving {
 					/* fermeture de l'écriture */
 					fileFlux.close();
 					fw.close();
-					System.out.println("success");
+					System.out.println("success write");
 				} catch (IOException t) {
 					t.printStackTrace(System.err);
 				}
@@ -126,6 +122,9 @@ public class SeamCarving {
 				if (image[i][j] < 10) {
 					System.out.print(" ");
 				}
+				if (image[i][j] < 100) {
+					System.out.print(" ");
+				}
 				System.out.print(image[i][j] + " ");
 			}
 			System.out.println();
@@ -133,12 +132,6 @@ public class SeamCarving {
 	}
 
 	public static void main(String[] args) {
-		System.out.println("bonjour1");
-		new SeamCarving();
-		System.out.println("bonjour2");
-		// int[][] image =
-		// readpgm("C:/Users/erwan/workspace/modelisation/ex1.pgm");
-		System.out.println("bonjour3");
 		int[][] img = { { 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
@@ -158,21 +151,14 @@ public class SeamCarving {
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 } };
+		System.out.println(" ------------- ecriture img 1 ------------- ");
 		writepgm(img, "nouveau");
 		printImg(img);
-		System.out.println(" ------------- interet ------------- ");
+		System.out.println(" ------------- interet img 1------------- ");
 		int[][] img1p5 = interest(img);
 		printImg(img1p5);
+		System.out.println(" ------------- lecture img 2 ------------- ");
 		int[][] img2 = readpgm("test");
 		printImg(img2);
-		
-		System.out.println(" ------------- interet ------------- ");
-		//
-		// for (i = 0; i < interet.length; i++) {
-		// for (j = 0; j < interet[i].length; j++) {
-		// System.out.print(interet[i][j]+" ");
-		// }
-		// System.out.print("\n");
-		// }
 	}
 }

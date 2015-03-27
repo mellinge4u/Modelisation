@@ -135,7 +135,7 @@ public class SeamCarving {
 		// int[][] image =
 		// readpgm("C:/Users/erwan/workspace/modelisation/ex1.pgm");
 		System.out.println("bonjour3");
-		int[][] tab2Int = { { 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
+		int[][] img = { { 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7 },
@@ -154,23 +154,11 @@ public class SeamCarving {
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 } };
-		writepgm(tab2Int, "nouveau");
-		// int[][] interet = interest(tab2Int);
-		// int i;
-		// int j;
-		// for (i = 0; i < tab2Int.length; i++) {
-		// for (j = 0; j < tab2Int[i].length; j++) {
-		// if (tab2Int[i][j] < 10) {
-		// System.out.print(" ");
-		// }
-		// System.out.print(tab2Int[i][j] + " ");
-		// }
-		// System.out.println();
-		// }
-		SeamCarving.printImg(tab2Int);
-
-		SeamCarving.writepgm(tab2Int, "test");
-
+		writepgm(img, "nouveau");
+		printImg(img);
+		int[][] img2 = readpgm("test");
+		printImg(img2);
+		
 		System.out.println(" ------------- interet ------------- ");
 		//
 		// for (i = 0; i < interet.length; i++) {

@@ -156,7 +156,10 @@ public class SeamCarving {
 				{ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 } };
 		writepgm(img, "nouveau");
 		printImg(img);
-		int[][] img2 = readpgm("test");
+		System.out.println(" ------------- interet ------------- ");
+		int[][] img1p5 = interest(img);
+		printImg(img1p5);
+		int[][] img2 = readpgm("nouveau.pgm");
 		printImg(img2);
 		
 		System.out.println(" ------------- interet ------------- ");

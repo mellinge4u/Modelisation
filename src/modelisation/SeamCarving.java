@@ -114,6 +114,20 @@ public class SeamCarving {
 
 	}
 
+	public static void printImg(int[][] image) {
+		int i;
+		int j;
+		for (i = 0; i < image.length; i++) {
+			for (j = 0; j < image[i].length; j++) {
+				if (image[i][j] < 10) {
+					System.out.print(" ");
+				}
+				System.out.print(image[i][j] + " ");
+			}
+			System.out.println();
+		}
+	}
+
 	public static void main(String[] args) {
 		System.out.println("bonjour1");
 		new SeamCarving();
@@ -140,19 +154,22 @@ public class SeamCarving {
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 } };
-	writepgm(tab2Int, "nouveau");
+		writepgm(tab2Int, "nouveau");
 		// int[][] interet = interest(tab2Int);
-		int i;
-		int j;
-		for (i = 0; i < tab2Int.length; i++) {
-			for (j = 0; j < tab2Int[i].length; j++) {
-				if (tab2Int[i][j] < 10) {
-					System.out.print(" ");
-				}
-				System.out.print(tab2Int[i][j] + " ");
-			}
-			System.out.println();
-		}
+		// int i;
+		// int j;
+		// for (i = 0; i < tab2Int.length; i++) {
+		// for (j = 0; j < tab2Int[i].length; j++) {
+		// if (tab2Int[i][j] < 10) {
+		// System.out.print(" ");
+		// }
+		// System.out.print(tab2Int[i][j] + " ");
+		// }
+		// System.out.println();
+		// }
+		SeamCarving.printImg(tab2Int);
+
+		SeamCarving.writepgm(tab2Int, "test");
 
 		System.out.println(" ------------- interet ------------- ");
 		//

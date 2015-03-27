@@ -101,7 +101,7 @@ public class SeamCarving {
 	public static int[][] interest(int[][] image) {
 		int i;
 		int j;
-		int[][] tmp = image;
+		int[][] tmp = new int[image.length][image[0].length];
 		for (i = 0; i < image.length; i++) {
 			for (j = 0; j < image[i].length; j++) {
 				if (j == 0) {
@@ -163,7 +163,11 @@ public class SeamCarving {
 		System.out.println(" ------------- interet ------------- ");
 		int[][] img1p5 = interest(img);
 		printImg(img1p5);
+<<<<<<< HEAD
 		int[][] img2 = readpgm("test.pgm");
+=======
+		int[][] img2 = readpgm("test");
+>>>>>>> e9c9182629e408ce8dae705b567fe63de4bc6301
 		printImg(img2);
 		
 		System.out.println(" ------------- interet ------------- ");

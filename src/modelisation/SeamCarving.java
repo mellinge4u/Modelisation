@@ -15,18 +15,18 @@ public class SeamCarving {
 			String line = d.readLine();
 			while (line.startsWith("#")) {
 				line = d.readLine();
-			}
+			} 
 			Scanner s = new Scanner(line);
 			int width = s.nextInt();
 			int height = s.nextInt();
 			line = d.readLine();
 			s = new Scanner(line);
 			int maxVal = s.nextInt();
-			int[][] im = new int[height][width];
+			int[][] im = new int[width][height];
 			s = new Scanner(d);
 			int count = 0;
-			while (count < height * width) {
-				im[count / width][count % width] = s.nextInt();
+			while (count < width * height) {
+				im[count / height][count % height] = s.nextInt();
 				count++;
 			}
 			return im;
@@ -158,7 +158,10 @@ public class SeamCarving {
 		int[][] img1p5 = interest(img);
 		printImg(img1p5);
 		System.out.println(" ------------- lecture img 2 ------------- ");
-		int[][] img2 = readpgm("test");
+		int[][] img2 = readpgm("nouveau");
 		printImg(img2);
+		System.out.println(" ------------- lecture img 3 ------------- ");
+		int[][] img3 = readpgm("test");
+		printImg(img3);
 	}
 }

@@ -9,8 +9,12 @@ public class SeamCarving {
 	public static int[][] readpgm(String fn) {
 		try {
 			InputStream f = ClassLoader.getSystemClassLoader()
-					.getResourceAsStream(fn);
-			BufferedReader d = new BufferedReader(new InputStreamReader(f));
+					.getResourceAsStream(fn + ".pgm");
+			if (f == null) {
+				System.out.println("PAS DE FICHIER TROUVEE !!!!!!!");
+			}
+			InputStreamReader isr = new InputStreamReader(f);
+			BufferedReader d = new BufferedReader(isr);
 			String magic = d.readLine();
 			String line = d.readLine();
 			while (line.startsWith("#")) {

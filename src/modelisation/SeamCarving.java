@@ -157,8 +157,15 @@ public class SeamCarving {
 		System.out.println(" ------------- interet img 1------------- ");
 		int[][] img1p5 = interest(img);
 		printImg(img1p5);
+<<<<<<< HEAD
 		System.out.println(" ------------- lecture img 2 ------------- ");
+=======
+<<<<<<< HEAD
+		int[][] img2 = readpgm("test.pgm");
+=======
+>>>>>>> origin/master
 		int[][] img2 = readpgm("test");
+>>>>>>> e9c9182629e408ce8dae705b567fe63de4bc6301
 		printImg(img2);
 	}
 }

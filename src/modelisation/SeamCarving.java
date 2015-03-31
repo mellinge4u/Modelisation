@@ -1,10 +1,7 @@
 package modelisation;
 
-import java.util.ArrayList;
 import java.io.*;
 import java.util.*;
-
-import sun.security.util.Length;
 
 public class SeamCarving {
 
@@ -137,27 +134,35 @@ public class SeamCarving {
 		int width = itr[0].length;
 		int height = itr.length;
 		int node = width * height + 2;
-		int i, j;
-		int infinite = width * height;
+		int i, j, k;
+		int[] kVal;	// C'est le tableau des k, pour remplir l'utilisation des arrêtes
+		int infinite = Integer.MAX_VALUE;
+		kVal = new int[height];
 		
 		Graph g = new Graph(node);
 
 		/* liaison entre (i,j) et (i,j+1) */
 		for (i = 0; i < height; i++) {
+			k = Integer.MAX_VALUE;
+			for (j=0; j<width; j++) {
+				k = Math.min(itr[i][j], k);
+			}
+			System.out.println("min " + i + " " + k);
+			kVal[i]=k;
 			for (j = 0; j < width - 1; j++) {
 				g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i, itr[i][j],
-						0));
+						k));
 			}
 		}
 
 		/* liaison noeuds à t */
 		for (i = 0; i < height; i++) {
-			g.addEdge(new Edge((width - 1) * height + i, node - 2, itr[i][width - 1], 0));
+			g.addEdge(new Edge((width - 1) * height + i, node - 2, itr[i][width - 1], kVal[i]));
 		}
 
 		/* liaison s à noeuds */
 		for (i = 0; i < height; i++) {
-			g.addEdge(new Edge(node - 1, i, infinite, 0));
+			g.addEdge(new Edge(node - 1, i, infinite, kVal[i]));
 		}
 
 		/*
@@ -181,6 +186,10 @@ public class SeamCarving {
 		return g;
 	}
 
+	public static void maxFlow(Graph g) {
+		
+	}
+	
 	public static void main(String[] args) {
 		int[][] img = { { 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
@@ -201,19 +210,21 @@ public class SeamCarving {
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
 				{ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 } };
-		System.out.println(" ------------- ecriture img 1 ------------- ");
-		writepgm(img, "nouveau");
-		printImg(img);
-		System.out.println(" ------------- interet img 1------------- ");
-		int[][] img1p5 = interest(img);
-		printImg(img1p5);
-		System.out.println(" ------------- lecture img 2 ------------- ");
-		int[][] img2 = readpgm("nouveau");
-		printImg(img2);
+//		System.out.println(" ------------- ecriture img 1 ------------- ");
+//		writepgm(img, "nouveau");
+//		printImg(img);
+//		System.out.println(" ------------- interet img 1------------- ");
+//		int[][] img1p5 = interest(img);
+//		printImg(img1p5);
+//		System.out.println(" ------------- lecture img 2 ------------- ");
+//		int[][] img2 = readpgm("nouveau");
+//		printImg(img2);
 		System.out.println(" ------------- lecture img 3 ------------- ");
 		int[][] img3 = readpgm("test");
 		printImg(img3);
-		Graph g = tograph(img1p5);
+		int[][] inter = interest(img3);
+		printImg(inter);
+		Graph g = tograph(inter);
 		g.writeFile("test_img.dot");
 	}
 }

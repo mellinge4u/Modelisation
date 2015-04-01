@@ -148,7 +148,7 @@ public class SeamCarving {
 				k = Math.min(itr[i][j], k);
 			}
 			System.out.println("min " + i + " " + k);
-			k = 0; // TODO A SUPPRIMER !!!!!
+			k = 0; // TODO A SUPPRIMER !!!!! pour réspécter les consigne, mais mon algo marche mieux avec 
 			kVal[i]=k;
 			for (j = 0; j < width - 1; j++) {
 				g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i, itr[i][j],
@@ -187,7 +187,7 @@ public class SeamCarving {
 		return g;
 	}
 
-	// fonction de test de Raph
+	// calcul le flot max d'un graph
 	public static void fullGraph(Graph g) {
 		int s = g.vertices()-1;
 		int t = s-1;
@@ -233,12 +233,8 @@ public class SeamCarving {
 									// l'arrête n'est pas saturée au début de l'analyse
 									if (saturation) {
 										flowInUse = flowNotUsed;
-										//ed.used += flowNotUsed;
-										//flow -= flowNotUsed;
 									} else {
 										flowInUse = flow;
-										//ed.used += flow;
-										//flow = 0;
 									}
 									ed.used += flowInUse;
 									flow -= flowInUse;
@@ -246,14 +242,11 @@ public class SeamCarving {
 									if (isSet != null) {
 										vUsed.put(vTo, isSet + flowInUse);
 									} else {
-										toDo.add(vTo);	// TODO à vérifier
+										toDo.add(vTo);
 									}
 								}
 							} else {
 								numberBack++;
-								// TODO à vérifier 
-								// arrête qui ne vas pas vers l'avant
-								// Je crois qu'il ne faut rien faire de plus
 							}
 						}
 					}
@@ -270,7 +263,7 @@ public class SeamCarving {
 									if (isSet != null) {
 										vUsed.put(vTo, isSet + flowMod);
 									} else {
-										toDo.add(vTo);	// TODO à vérifier bis
+										toDo.add(vTo);
 									}
 									flow -= flowMod;
 									numberBack--;
@@ -290,7 +283,8 @@ public class SeamCarving {
 		}
 	}
 	
-	// autre fonction de test de Raph
+	// réduit le flot actuel d'un point vers l'entrée
+	// TODO corriger la fonction, certains flots peuvent devenir négatif
 	public static void freeLine(Graph g, int v, int numberToRemove) {
 		int vTo = v;
 		int s = g.vertices()-1;
@@ -311,27 +305,31 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
+		/*
 		int[][] inter = { 
 				{ 5, 2, 3 },
 				{ 7, 8, 1 },
 				{ 9, 5, 2 },
 				{ 10, 15, 20 }};
-		//		System.out.println(" ------------- ecriture img 1 ------------- ");
+		*/
+//		System.out.println(" ------------- ecriture img 1 ------------- ");
 //		writepgm(img, "nouveau");
 //		printImg(img);
 //		System.out.println(" ------------- interet img 1------------- ");
 //		int[][] img1p5 = interest(img);
 //		printImg(img1p5);
-//		System.out.println(" ------------- lecture img 2 ------------- ");
-//		int[][] img2 = readpgm("nouveau");
+		System.out.println(" ------------- lecture img ------------- ");
+		int[][] img = readpgm("ex2");
+		System.out.println(" ------------- interest img ------------- ");
+		int[][] inter = interest(img);
 //		printImg(img2);
 //		System.out.println(" ------------- lecture img 3 ------------- ");
 //		int[][] img3 = readpgm("test");
 //		System.out.println(" ------------- print img ------------- ");
 //		printImg(img);
 //		int[][] inter = interest(img);
-		System.out.println(" ------------- print interest ------------- ");
-		printImg(inter);
+//		System.out.println(" ------------- print interest ------------- ");
+//		printImg(inter);
 		Graph g = tograph(inter);
 		g.writeFile("test_img.dot");
 		System.out.println(" ------------- start full Graph ------------- ");

@@ -16,8 +16,8 @@ public class SeamCarving {
 				line = d.readLine();
 			}
 			Scanner s = new Scanner(line);
-			int width = s.nextInt();
 			int height = s.nextInt();
+			int width = s.nextInt();
 			line = d.readLine();
 			s = new Scanner(line);
 			s.nextInt();
@@ -148,6 +148,7 @@ public class SeamCarving {
 				k = Math.min(itr[i][j], k);
 			}
 			System.out.println("min " + i + " " + k);
+			k = 0; // TODO A SUPPRIMER !!!!!
 			kVal[i]=k;
 			for (j = 0; j < width - 1; j++) {
 				g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i, itr[i][j],
@@ -170,8 +171,8 @@ public class SeamCarving {
 		 */
 		for (i = 0; i < height; i++) {
 			for (j = 1; j < width; j++) {
-				g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i,
-						infinite, 0));
+//				g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i,
+//						infinite, 0));
 				if (i != 0) {
 					g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i
 							- 1, infinite, 0));
@@ -207,11 +208,11 @@ public class SeamCarving {
 		}
 		full.add(s);
 		while (toDo.size() > 0) {
-			saturation = false;
+			saturation = true;
 			numberBack = 0;
 			int vFrom = toDo.get(0);
 			if (vFrom == t) { // Point d'arrivée
-				toDo.remove(vFrom);
+				toDo.remove(0);
 				vUsed.remove(vFrom);
 			} else {
 				edges = g.adj(vFrom);
@@ -221,23 +222,29 @@ public class SeamCarving {
 						int vTo = ed.other(vFrom);
 						if ((!full.contains(vTo)) && ed.from == vFrom) {
 							if (ed.capacity < 256) {
+								saturation = false;
 								// Arrête qui vas vers la droite
 								int flowNotUsed = ed.capacity - ed.used;
+								int flowInUse;
 								if (flow >= flowNotUsed) {
 									saturation = true;
 								}
 								if (flowNotUsed > 0) {
 									// l'arrête n'est pas saturée au début de l'analyse
 									if (saturation) {
-										ed.used += flowNotUsed;
-										flow -= flowNotUsed;
+										flowInUse = flowNotUsed;
+										//ed.used += flowNotUsed;
+										//flow -= flowNotUsed;
 									} else {
-										ed.used += flow;
-										flow = 0;
+										flowInUse = flow;
+										//ed.used += flow;
+										//flow = 0;
 									}
-									Integer isSet = vUsed.putIfAbsent(vTo, ed.used);
+									ed.used += flowInUse;
+									flow -= flowInUse;
+									Integer isSet = vUsed.putIfAbsent(vTo, flowInUse);
 									if (isSet != null) {
-										vUsed.put(vTo, isSet + ed.used);
+										vUsed.put(vTo, isSet + flowInUse);
 									} else {
 										toDo.add(vTo);	// TODO à vérifier
 									}
@@ -255,7 +262,7 @@ public class SeamCarving {
 						for (Edge ed : edges) {
 							int vTo = ed.other(vFrom);
 							if (!full.contains(vTo)) {
-								if (ed.capacity > 256) {
+								if (ed.capacity > 256 && numberBack > 0) {
 									// L'arrête vas vers l'arriere
 									int flowMod = flow/numberBack;
 									ed.used+=(flowMod);
@@ -286,11 +293,13 @@ public class SeamCarving {
 	// autre fonction de test de Raph
 	public static void freeLine(Graph g, int v, int numberToRemove) {
 		int vTo = v;
-		while (vTo !=g.vertices()-1) {
+		int s = g.vertices()-1;
+		while (vTo != s) {
 			for(Edge ed : g.adj(vTo)) {
-				if (ed.to == vTo && ed.capacity < 255) {
+				if ((ed.to == vTo && ed.capacity < 255) || ed.from == s) {
 					ed.used -= numberToRemove;
 					vTo = ed.from;
+					break;
 				}
 			}
 		}
@@ -302,6 +311,11 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
+		int[][] inter = { 
+				{ 5, 2, 3 },
+				{ 7, 8, 1 },
+				{ 9, 5, 2 },
+				{ 10, 15, 20 }};
 		//		System.out.println(" ------------- ecriture img 1 ------------- ");
 //		writepgm(img, "nouveau");
 //		printImg(img);
@@ -311,14 +325,19 @@ public class SeamCarving {
 //		System.out.println(" ------------- lecture img 2 ------------- ");
 //		int[][] img2 = readpgm("nouveau");
 //		printImg(img2);
-		System.out.println(" ------------- lecture img 3 ------------- ");
-		int[][] img3 = readpgm("test");
-		printImg(img3);
-		int[][] inter = interest(img3);
+//		System.out.println(" ------------- lecture img 3 ------------- ");
+//		int[][] img3 = readpgm("test");
+//		System.out.println(" ------------- print img ------------- ");
+//		printImg(img);
+//		int[][] inter = interest(img);
+		System.out.println(" ------------- print interest ------------- ");
 		printImg(inter);
 		Graph g = tograph(inter);
 		g.writeFile("test_img.dot");
+		System.out.println(" ------------- start full Graph ------------- ");
 		fullGraph(g);
+		System.out.println(" ------------- end full Graph ------------- ");
 		g.writeFile("test_img_full.dot");
+		System.out.println(" ------------- fin ------------- ");
 	}
 }

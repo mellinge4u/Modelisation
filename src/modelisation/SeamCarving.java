@@ -194,10 +194,10 @@ public class SeamCarving {
 		int numberBack;
 		boolean saturation;
 		HashMap<Integer, Integer> vUsed;	// K : Vertices; V : used
-		ArrayList<Integer> toDo, done;
+		ArrayList<Integer> toDo, full;
 		vUsed = new HashMap<Integer, Integer>();
 		toDo = new ArrayList<Integer>();
-		done = new ArrayList<Integer>();
+		full = new ArrayList<Integer>();
 		Iterable<Edge> edges = g.adj(s);
 		for (Edge ed : edges) {
 			p = ed.other(s);
@@ -205,20 +205,20 @@ public class SeamCarving {
 			vUsed.put(p, 255);
 			ed.used = 255;
 		}
-		done.add(s);
+		full.add(s);
 		while (toDo.size() > 0) {
 			saturation = false;
 			numberBack = 0;
 			int vFrom = toDo.get(0);
 			if (vFrom == t) { // Point d'arrivée
-
+				// TODO Faire le cas point d'arrivée
 			} else {
 				edges = g.adj(vFrom);
 				int flow = vUsed.get(vFrom);
 				if (flow > 0) {
 					for (Edge ed : edges) {
 						int vTo = ed.other(vFrom);
-						if ((!done.contains(vTo)) && ed.from == vFrom) {
+						if ((!full.contains(vTo)) && ed.from == vFrom) {
 							if (ed.capacity < 256) {
 								// Arrête qui vas vers la droite
 								int flowNotUsed = ed.capacity - ed.used;
@@ -226,7 +226,7 @@ public class SeamCarving {
 									saturation = true;
 								}
 								if (flowNotUsed > 0) {
-									// l'arrête n'est pas encore satturée
+									// l'arrête n'est pas saturée au début de l'analyse
 									if (saturation) {
 										ed.used += flowNotUsed;
 										flow -= flowNotUsed;
@@ -234,29 +234,47 @@ public class SeamCarving {
 										ed.used += flow;
 										flow = 0;
 									}
-									toDo.add(vTo);
-									vUsed.putIfAbsent(vTo, ed.used);
+									Integer isSet = vUsed.putIfAbsent(vTo, ed.used);	// TODO gérer le cas on le point existe deja
+									if (isSet != null) {
+										vUsed.put(vTo, isSet + ed.used);
+									} else {
+										toDo.add(vTo);	// TODO à vérifier
+									}
 								}
 							} else {
 								numberBack++;
 								// TODO arrête qui ne vas pas vers l'avant
-								// Je crois qu'il ne faut rien faire
+								// Je crois qu'il ne faut rien faire de plus
 							}
 						}
 					}
-					// Si il n'y a pas de saturation
-					if (!saturation) {
+					// Si'l y a saturation
+					if (saturation) {
 						for (Edge ed : edges) {
 							int vTo = ed.other(vFrom);
-							if (!done.contains(vTo)) {
+							if (!full.contains(vTo)) {
 								if (ed.capacity > 256) {
-									ed.used+=(flow/numberBack);
-									toDo.add(vTo);
-									vUsed.put(vTo, flow/numberBack);
+									// L'arrête vas vers l'arriere
+									int flowMod = flow/numberBack;
+									ed.used+=(flowMod);
+									Integer isSet = vUsed.putIfAbsent(vTo, flowMod);
+									if (isSet != null) {
+										vUsed.put(vTo, isSet + flowMod);
+									} else {
+										toDo.add(vTo);	// TODO à vérifier
+									}
+									flow -= flowMod;
+									numberBack--;
 								}
 							}
 						}
 					}
+				}
+				// On se retire de la liste de sommet en cours
+				toDo.remove(0);
+				if (saturation) {
+					freeLine(g, vFrom, flow);
+					full.add(vFrom);
 				}
 			}
 		}

@@ -10,7 +10,7 @@ public class SeamCarving {
 			InputStream f = new FileInputStream(fn + ".pgm");
 			InputStreamReader isr = new InputStreamReader(f);
 			BufferedReader d = new BufferedReader(isr);
-			String magic = d.readLine();
+			d.readLine();
 			String line = d.readLine();
 			while (line.startsWith("#")) {
 				line = d.readLine();
@@ -20,7 +20,7 @@ public class SeamCarving {
 			int height = s.nextInt();
 			line = d.readLine();
 			s = new Scanner(line);
-			int maxVal = s.nextInt();
+			s.nextInt();
 			int[][] im = new int[width][height];
 			s = new Scanner(d);
 			int count = 0;
@@ -211,7 +211,8 @@ public class SeamCarving {
 			numberBack = 0;
 			int vFrom = toDo.get(0);
 			if (vFrom == t) { // Point d'arrivée
-				// TODO Faire le cas point d'arrivée
+				toDo.remove(vFrom);
+				vUsed.remove(vFrom);
 			} else {
 				edges = g.adj(vFrom);
 				int flow = vUsed.get(vFrom);
@@ -234,7 +235,7 @@ public class SeamCarving {
 										ed.used += flow;
 										flow = 0;
 									}
-									Integer isSet = vUsed.putIfAbsent(vTo, ed.used);	// TODO gérer le cas on le point existe deja
+									Integer isSet = vUsed.putIfAbsent(vTo, ed.used);
 									if (isSet != null) {
 										vUsed.put(vTo, isSet + ed.used);
 									} else {
@@ -243,7 +244,8 @@ public class SeamCarving {
 								}
 							} else {
 								numberBack++;
-								// TODO arrête qui ne vas pas vers l'avant
+								// TODO à vérifier 
+								// arrête qui ne vas pas vers l'avant
 								// Je crois qu'il ne faut rien faire de plus
 							}
 						}
@@ -261,7 +263,7 @@ public class SeamCarving {
 									if (isSet != null) {
 										vUsed.put(vTo, isSet + flowMod);
 									} else {
-										toDo.add(vTo);	// TODO à vérifier
+										toDo.add(vTo);	// TODO à vérifier bis
 									}
 									flow -= flowMod;
 									numberBack--;
@@ -271,18 +273,27 @@ public class SeamCarving {
 					}
 				}
 				// On se retire de la liste de sommet en cours
-				toDo.remove(0);
 				if (saturation) {
 					freeLine(g, vFrom, flow);
 					full.add(vFrom);
 				}
+				toDo.remove(0);
+				vUsed.remove(vFrom);
 			}
 		}
 	}
 	
 	// autre fonction de test de Raph
-	public static void freeLine(Graph g, int v, int number) {
-		
+	public static void freeLine(Graph g, int v, int numberToRemove) {
+		int vTo = v;
+		while (vTo !=g.vertices()-1) {
+			for(Edge ed : g.adj(vTo)) {
+				if (ed.to == vTo && ed.capacity < 255) {
+					ed.used -= numberToRemove;
+					vTo = ed.from;
+				}
+			}
+		}
 	}
 	
 
@@ -291,26 +302,7 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
-		int[][] img = { { 10, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7 },
-				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
-				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
-				{ 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7 },
-				{ 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-				{ 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7 },
-				{ 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-				{ 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7 },
-				{ 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 7 },
-				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
-				{ 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6 },
-				{ 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7 },
-				{ 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 },
-				{ 10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 },
-				{ 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7 },
-				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
-				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
-				{ 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7 },
-				{ 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10 } };
-//		System.out.println(" ------------- ecriture img 1 ------------- ");
+		//		System.out.println(" ------------- ecriture img 1 ------------- ");
 //		writepgm(img, "nouveau");
 //		printImg(img);
 //		System.out.println(" ------------- interet img 1------------- ");
@@ -326,5 +318,7 @@ public class SeamCarving {
 		printImg(inter);
 		Graph g = tograph(inter);
 		g.writeFile("test_img.dot");
+		fullGraph(g);
+		g.writeFile("test_img_full.dot");
 	}
 }

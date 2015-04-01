@@ -186,6 +186,88 @@ public class SeamCarving {
 		return g;
 	}
 
+	// fonction de test de Raph
+	public static void fullGraph(Graph g) {
+		int s = g.vertices()-1;
+		int t = s-1;
+		int p;
+		int numberBack;
+		boolean saturation;
+		HashMap<Integer, Integer> vUsed;	// K : Vertices; V : used
+		ArrayList<Integer> toDo, done;
+		vUsed = new HashMap<Integer, Integer>();
+		toDo = new ArrayList<Integer>();
+		done = new ArrayList<Integer>();
+		Iterable<Edge> edges = g.adj(s);
+		for (Edge ed : edges) {
+			p = ed.other(s);
+			toDo.add(p);
+			vUsed.put(p, 255);
+			ed.used = 255;
+		}
+		done.add(s);
+		while (toDo.size() > 0) {
+			saturation = false;
+			numberBack = 0;
+			int vFrom = toDo.get(0);
+			if (vFrom == t) { // Point d'arrivée
+
+			} else {
+				edges = g.adj(vFrom);
+				int flow = vUsed.get(vFrom);
+				if (flow > 0) {
+					for (Edge ed : edges) {
+						int vTo = ed.other(vFrom);
+						if ((!done.contains(vTo)) && ed.from == vFrom) {
+							if (ed.capacity < 256) {
+								// Arrête qui vas vers la droite
+								int flowNotUsed = ed.capacity - ed.used;
+								if (flow >= flowNotUsed) {
+									saturation = true;
+								}
+								if (flowNotUsed > 0) {
+									// l'arrête n'est pas encore satturée
+									if (saturation) {
+										ed.used += flowNotUsed;
+										flow -= flowNotUsed;
+									} else {
+										ed.used += flow;
+										flow = 0;
+									}
+									toDo.add(vTo);
+									vUsed.putIfAbsent(vTo, ed.used);
+								}
+							} else {
+								numberBack++;
+								// TODO arrête qui ne vas pas vers l'avant
+								// Je crois qu'il ne faut rien faire
+							}
+						}
+					}
+					// Si il n'y a pas de saturation
+					if (!saturation) {
+						for (Edge ed : edges) {
+							int vTo = ed.other(vFrom);
+							if (!done.contains(vTo)) {
+								if (ed.capacity > 256) {
+									ed.used+=(flow/numberBack);
+									toDo.add(vTo);
+									vUsed.put(vTo, flow/numberBack);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// autre fonction de test de Raph
+	public static void freeLine(Graph g, int v, int number) {
+		
+	}
+	
+
 	public static void maxFlow(Graph g) {
 		
 	}

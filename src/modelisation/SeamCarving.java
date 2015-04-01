@@ -284,17 +284,62 @@ public class SeamCarving {
 	}
 	
 	// réduit le flot actuel d'un point vers l'entrée
-	// TODO corriger la fonction, certains flots peuvent devenir négatif
 	public static void freeLine(Graph g, int v, int numberToRemove) {
 		int vTo = v;
 		int s = g.vertices()-1;
-		while (vTo != s) {
+		boolean foundPath = false;
+		boolean changeWay = false;
+		while (vTo != s && numberToRemove > 0) {
+			foundPath = false;
+			System.out.println("vTo " + vTo);
+			changeWay = false;
 			for(Edge ed : g.adj(vTo)) {
-				if ((ed.to == vTo && ed.capacity < 255) || ed.from == s) {
-					ed.used -= numberToRemove;
-					vTo = ed.from;
+				if (((ed.to == vTo && ed.capacity < 255) || ed.from == s) && ed.used > 0) {
+					foundPath = true;
+					if (ed.used >= numberToRemove) {
+						ed.used -= numberToRemove;
+						vTo = ed.from;
+					} else {
+						// TODO A vérifier
+						freeLine(g, ed.from, ed.used);
+						numberToRemove -= ed.used;
+						ed.used = 0;
+						changeWay = true;
+					}
 					break;
 				}
+			}
+			if (changeWay) {
+				changeWay = false;
+				for(Edge ed : g.adj(vTo)) {
+					if (ed.to == vTo && ed.capacity > 255 && ed.used > 0) {
+						if (ed.used > numberToRemove) {
+							ed.used -= numberToRemove;
+							vTo = ed.from;
+							break;
+						} else {
+							// Problème
+							freeLine(g, ed.from, ed.used);
+							numberToRemove -= ed.used;
+							ed.used = 0;
+							changeWay = true;
+						}
+					}
+				}
+			} 
+			if (!foundPath) {
+				for(Edge ed : g.adj(vTo)) {
+					if (ed.from == vTo && ed.capacity > 255) {
+						foundPath = true;
+						ed.used += numberToRemove;
+						vTo = ed.other(vTo);
+						break;
+					}
+				}
+			}
+			if (!foundPath) {
+				// TODO La réduction arive sur le bord gauche, mais le flot depuis S vaut 0
+				System.out.println("IL Y A UN PROBLEME !!!!!!!!!!!!!!!!!!!!!!!!!!!");
 			}
 		}
 	}
@@ -305,31 +350,18 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
-		/*
+/*
 		int[][] inter = { 
-				{ 5, 2, 3 },
-				{ 7, 8, 1 },
-				{ 9, 5, 2 },
-				{ 10, 15, 20 }};
-		*/
-//		System.out.println(" ------------- ecriture img 1 ------------- ");
-//		writepgm(img, "nouveau");
-//		printImg(img);
-//		System.out.println(" ------------- interet img 1------------- ");
-//		int[][] img1p5 = interest(img);
-//		printImg(img1p5);
+				{ 5, 2, 2, 3 },
+				{ 7, 8, 8, 1 },
+				{ 9, 5, 5, 2 },
+				{ 10, 15, 15, 20 }};
+*/		
 		System.out.println(" ------------- lecture img ------------- ");
 		int[][] img = readpgm("ex2");
 		System.out.println(" ------------- interest img ------------- ");
 		int[][] inter = interest(img);
-//		printImg(img2);
-//		System.out.println(" ------------- lecture img 3 ------------- ");
-//		int[][] img3 = readpgm("test");
-//		System.out.println(" ------------- print img ------------- ");
-//		printImg(img);
-//		int[][] inter = interest(img);
-//		System.out.println(" ------------- print interest ------------- ");
-//		printImg(inter);
+
 		Graph g = tograph(inter);
 		g.writeFile("test_img.dot");
 		System.out.println(" ------------- start full Graph ------------- ");

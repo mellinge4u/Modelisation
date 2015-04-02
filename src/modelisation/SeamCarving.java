@@ -288,58 +288,73 @@ public class SeamCarving {
 		int vTo = v;
 		int s = g.vertices()-1;
 		boolean foundPath = false;
-		boolean changeWay = false;
+		ArrayList<Integer> forbiddenV = new ArrayList<Integer>();
 		while (vTo != s && numberToRemove > 0) {
 			foundPath = false;
 			System.out.println("vTo " + vTo);
-			changeWay = false;
 			for(Edge ed : g.adj(vTo)) {
-				if (((ed.to == vTo && ed.capacity < 255) || ed.from == s) && ed.used > 0) {
+				if (((ed.to == vTo && ed.capacity < 256 && !forbiddenV.contains(ed.from)) || ed.from == s) && ed.used > 0) {
+					// On vas vers la gauche
 					foundPath = true;
 					if (ed.used >= numberToRemove) {
 						ed.used -= numberToRemove;
 						vTo = ed.from;
+						forbiddenV.add(vTo);
 					} else {
-						// TODO A vérifier
+						// Le flot est trop grand, et doit etre séparée
 						freeLine(g, ed.from, ed.used);
 						numberToRemove -= ed.used;
 						ed.used = 0;
-						changeWay = true;
 					}
 					break;
 				}
 			}
-			if (changeWay) {
-				changeWay = false;
-				for(Edge ed : g.adj(vTo)) {
-					if (ed.to == vTo && ed.capacity > 255 && ed.used > 0) {
-						if (ed.used > numberToRemove) {
-							ed.used -= numberToRemove;
-							vTo = ed.from;
-							break;
-						} else {
-							// Problème
-							freeLine(g, ed.from, ed.used);
-							numberToRemove -= ed.used;
-							ed.used = 0;
-							changeWay = true;
-						}
-					}
-				}
-			} 
 			if (!foundPath) {
 				for(Edge ed : g.adj(vTo)) {
-					if (ed.from == vTo && ed.capacity > 255) {
+					if (ed.from == vTo && ed.capacity > 256 && !forbiddenV.contains(ed.to)) {
+						// On vas en haut/bas à gauche
 						foundPath = true;
 						ed.used += numberToRemove;
 						vTo = ed.other(vTo);
+						forbiddenV.add(vTo);
 						break;
 					}
 				}
 			}
 			if (!foundPath) {
-				// TODO La réduction arive sur le bord gauche, mais le flot depuis S vaut 0
-				System.out.println("IL Y A UN PROBLEME !!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				for(Edge ed : g.adj(vTo)) {
+					if (ed.to == vTo && ed.capacity > 256 && ed.used > 0 && !forbiddenV.contains(ed.from)) {
+						// On vas en haut/bas à droite
+						foundPath = true;
+						if (ed.used > numberToRemove) {
+							ed.used -= numberToRemove;
+							vTo = ed.from;
+							forbiddenV.add(vTo);
+							break;
+						} else {
+							// Le flot est trop grand, et doit etre séparée
+							freeLine(g, ed.from, ed.used);
+							numberToRemove -= ed.used;
+							ed.used = 0;
+						}
+					}
+				}
+			} 
+			if (!foundPath) {
+				for (Edge ed : g.adj(vTo)) {
+					if (ed.from == vTo && ed.capacity < 256 && !forbiddenV.contains(ed.to)) {
+						// On vas vers la droite
+						int capacityFree = ed.capacity - ed.used;
+						if (capacityFree > 0) {
+							ed.used += numberToRemove;
+							vTo = ed.other(vTo);
+							forbiddenV.add(vTo);
+							break;
+						} else {
+							System.out.println("IL Y A UN PROBLEME !!!!!!!!!!!!!");
+						}
+					}
+				}
 			}
 		}
 	}

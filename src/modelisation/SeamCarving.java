@@ -332,12 +332,21 @@ public class SeamCarving {
 		int t = vertices - 2;
 		int currentV = s;
 		ArrayList<Integer> toDo = new ArrayList<Integer>();
+		ArrayList<Integer> view = new ArrayList<Integer>();
 		toDo.add(s);
 		
 		while(toDo.size() > 0 && currentV != t) {
+			view.add(currentV);
 			for(Edge ed : g.adj(currentV)) {
-				
+				if (ed.from == currentV && !view.contains(ed.other(currentV))) {
+					 toDo.add(ed.other(currentV));
+				}
 			}
+			toDo.remove(0);
+			currentV = toDo.get(0);
+		}
+		if (currentV == t) {
+			pathFind = true;
 		}
 		return pathFind;
 	}
@@ -365,6 +374,8 @@ public class SeamCarving {
 		fullGraph(g);
 		System.out.println(" ------------- end full Graph ------------- ");
 		g.writeFile("test_img_full.dot");
+		System.out.println(" ------------- full ? ------------- ");
+		System.out.println(searchPath(g));
 		System.out.println(" ------------- fin ------------- ");
 	}
 }

@@ -49,7 +49,7 @@ public class SeamCarving {
 		/* separateur */
 		sb.append("\n");
 		/* ligne + cologne */
-		sb.append(image.length + " " + image[0].length);
+		sb.append(image[0].length + " " + image.length);
 		/* separateur */
 		sb.append("\n");
 		/* blanc */
@@ -499,12 +499,12 @@ public class SeamCarving {
 	
 	public static void main(String[] args) {
 
-//		int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20 } };
+		int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20 } };
 
 		System.out.println(" ------------- lecture img ------------- ");
-		int[][] img = readpgm("ex1");
+		int[][] img = readpgm("ex2");
 		System.out.println(" ------------- interest img ------------- ");
-		int[][] inter = interest(img);
+//		int[][] inter = interest(img);
 		Graph g = tograph(inter);
 		System.out.println(" ------------- start full Graph ------------- ");
 //		fullGraph(g);
@@ -516,13 +516,14 @@ public class SeamCarving {
 			findPath(g);
 			System.out.println(" ------------- end find Path ------------- ");
 			stillPath = isStillPath(g);
-			System.out.println("Path ? " + stillPath);
+			System.out.println("Existe-t-il un chemin ? " + stillPath);
 		}
 		ArrayList<Integer> coup = coupeMin(g);
 		System.out.println(coup);
 		int[][] img2 = toImg(inter, coup);
-		printImg(img2);
-//		writepgm(inter, "new_ex1");
+//		printImg(img2);
+		writepgm(img, "ex2_2");
+		writepgm(img2, "new_test");
 		System.out.println(" ------------- fin ------------- ");
 	}
 }

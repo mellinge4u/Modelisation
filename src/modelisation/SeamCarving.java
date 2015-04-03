@@ -1,6 +1,7 @@
 package modelisation;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class SeamCarving {
@@ -211,6 +212,7 @@ public class SeamCarving {
 			saturation = true;
 			numberBack = 0;
 			int vFrom = toDo.get(0);
+			System.out.println("point : " + vFrom);
 			if (vFrom == t) { // Point d'arrivée
 				toDo.remove(0);
 				vUsed.remove(vFrom);
@@ -274,7 +276,7 @@ public class SeamCarving {
 				}
 				// On se retire de la liste de sommet en cours
 				if (saturation) {
-					freeLine(g, vFrom, flow);
+					refreeLine(g, vFrom, flow);
 					full.add(vFrom);
 				}
 				toDo.remove(0);
@@ -359,7 +361,86 @@ public class SeamCarving {
 		}
 	}
 	
-
+	public static void refreeLine(Graph g, int v, int numberToRemove) {
+		int passable;
+		int s = g.vertices()-1;
+		boolean pathFind;
+		ArrayList<Integer> end = new ArrayList<Integer>();
+		while(v != s) {
+			System.out.println("  free : " + v);
+			pathFind = false;
+			if (!pathFind) {
+				for (Edge ed : g.adj(v)) {
+					if (ed.capacity > 255 && ed.to == v && ed.used > 0 && !end.contains(ed.other(v))) {
+						// arrête diagonal vers la droite
+						passable = ed.used;
+						if (passable > numberToRemove) {
+							pathFind = true;
+							ed.used -= numberToRemove;
+							v = ed.other(v);
+							break;
+						} else {
+							refreeLine(g, ed.other(v), passable);
+							numberToRemove -= passable;
+						}
+					}
+				}
+			}
+			if (!pathFind) {
+				for (Edge ed : g.adj(v)) {
+					if (((ed.capacity < 255 && ed.to == v) || ed.from == s) && ed.used > 0 && !end.contains(ed.other(v))) {
+						// arrête horizontale vers la gauche
+						passable = ed.used;
+						if (passable > numberToRemove) {
+							pathFind = true;
+							ed.used -= numberToRemove;
+							v = ed.other(v);
+						} else {
+							refreeLine(g, ed.other(v), passable);
+							numberToRemove -= passable;
+						}
+						break;
+					}
+				}
+			}
+			if (!pathFind) {
+				for (Edge ed : g.adj(v)) {
+					if (ed.capacity > 255 && ed.from == v && !end.contains(ed.other(v))) {
+						// arrête diagonal vers la gauche
+						pathFind = true;
+						ed.used += numberToRemove;
+						v = ed.other(v);
+						end.add(v);
+						break;
+					}
+				}
+			}
+			if (!pathFind) {
+				for (Edge ed : g.adj(v)) {
+					if (ed.capacity < 255 && ed.from == v && (ed.capacity-ed.used) > 0 && !end.contains(ed.other(v))) {
+						// arrête horizontale vers la droite
+						passable = ed.capacity - ed.used;
+						if (passable > numberToRemove) {
+							pathFind = true;
+							ed.used -= numberToRemove;
+							v = ed.other(v);
+							end.add(v);
+						} else {
+							refreeLine(g, ed.other(v), passable);
+							numberToRemove -= passable;
+						}
+						break;
+					}
+				}
+			}
+			if (!pathFind) {
+				System.out.println("T'ES DANS LA MERDE !!!!!");
+			}
+			
+		}
+		
+	}
+	
 	public static void maxFlow(Graph g) {
 		
 	}

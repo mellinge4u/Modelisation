@@ -415,7 +415,54 @@ public class SeamCarving {
 		return arrayListE;
 	}
 
-	
+	public void coupeMin(Graph g) {
+		boolean pathFind = false;
+		boolean ended = false;
+		int vertices = g.vertices();
+		int s = vertices - 1;
+		int t = vertices - 2;
+		int currentV = s;
+		ArrayList<Integer> toDo = new ArrayList<Integer>();
+		ArrayList<Integer> view = new ArrayList<Integer>();
+		toDo.add(s);
+
+		while (!ended) {
+			view.add(currentV);
+			for (Edge ed : g.adj(currentV)) {
+				if (ed.from == currentV && !view.contains(ed.other(currentV))
+						&& ed.used < ed.capacity) {
+					toDo.add(ed.other(currentV));
+				} else if (ed.to == currentV
+						&& !view.contains(ed.other(currentV)) && ed.used > 0) {
+					toDo.add(ed.other(currentV));
+				}
+			}
+			toDo.remove(0);
+			if (toDo.size() > 0 && currentV != t) {
+				currentV = toDo.get(0);
+			} else {
+				ended = true;
+			}
+		}
+
+		int i, j, height, width;
+		height = 0;
+		boolean select;
+		for (Edge ed : g.adj(s)) {
+			height++;
+		}
+		width = (vertices-1) / height;
+		ArrayList<Integer> coupeMin;
+		coupeMin = new ArrayList<>();
+		for (i = 0; i < height; i++) {
+			for(j = 0; j < width ; j++){
+				if(!view.contains((j*height)+i )){
+					coupeMin.add(((j-1)*height)+i);
+					break;
+				}
+			}
+		}
+	}	
 	
 	public static void main(String[] args) {
 

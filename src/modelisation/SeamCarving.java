@@ -136,30 +136,33 @@ public class SeamCarving {
 		int height = itr.length;
 		int node = width * height + 2;
 		int i, j, k;
-		int[] kVal;	// C'est le tableau des k, pour remplir l'utilisation des arrêtes
+		int[] kVal; // C'est le tableau des k, pour remplir l'utilisation des
+					// arrêtes
 		int infinite = Integer.MAX_VALUE;
 		kVal = new int[height];
-		
+
 		Graph g = new Graph(node);
 
 		/* liaison entre (i,j) et (i,j+1) */
 		for (i = 0; i < height; i++) {
 			k = Integer.MAX_VALUE;
-			for (j=0; j<width; j++) {
+			for (j = 0; j < width; j++) {
 				k = Math.min(itr[i][j], k);
 			}
 			System.out.println("min " + i + " " + k);
-			k = 0; // TODO A SUPPRIMER !!!!! pour réspécter les consigne, mais mon algo marche mieux avec 
-			kVal[i]=k;
+			k = 0; // TODO A SUPPRIMER !!!!! pour réspécter les consigne, mais
+					// mon algo marche mieux avec
+			kVal[i] = k;
 			for (j = 0; j < width - 1; j++) {
-				g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i, itr[i][j],
-						k));
+				g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i,
+						itr[i][j], k));
 			}
 		}
 
 		/* liaison noeuds à t */
 		for (i = 0; i < height; i++) {
-			g.addEdge(new Edge((width - 1) * height + i, node - 2, itr[i][width - 1], kVal[i]));
+			g.addEdge(new Edge((width - 1) * height + i, node - 2,
+					itr[i][width - 1], kVal[i]));
 		}
 
 		/* liaison s à noeuds */
@@ -172,8 +175,8 @@ public class SeamCarving {
 		 */
 		for (i = 0; i < height; i++) {
 			for (j = 1; j < width; j++) {
-//				g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i,
-//						infinite, 0));
+				// g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i,
+				// infinite, 0));
 				if (i != 0) {
 					g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i
 							- 1, infinite, 0));
@@ -190,12 +193,12 @@ public class SeamCarving {
 
 	// calcul le flot max d'un graph
 	public static void fullGraph(Graph g) {
-		int s = g.vertices()-1;
-		int t = s-1;
+		int s = g.vertices() - 1;
+		int t = s - 1;
 		int p;
 		int numberBack;
 		boolean saturation;
-		HashMap<Integer, Integer> vUsed;	// K : Vertices; V : used
+		HashMap<Integer, Integer> vUsed; // K : Vertices; V : used
 		ArrayList<Integer> toDo, full;
 		vUsed = new HashMap<Integer, Integer>();
 		toDo = new ArrayList<Integer>();
@@ -235,7 +238,8 @@ public class SeamCarving {
 									saturation = true;
 								}
 								if (flowNotUsed > 0) {
-									// l'arrête n'est pas saturée au début de l'analyse
+									// l'arrête n'est pas saturée au début de
+									// l'analyse
 									if (saturation) {
 										flowInUse = flowNotUsed;
 									} else {
@@ -243,7 +247,8 @@ public class SeamCarving {
 									}
 									ed.used += flowInUse;
 									flow -= flowInUse;
-									Integer isSet = vUsed.putIfAbsent(vTo, flowInUse);
+									Integer isSet = vUsed.putIfAbsent(vTo,
+											flowInUse);
 									if (isSet != null) {
 										vUsed.put(vTo, isSet + flowInUse);
 									} else {
@@ -253,7 +258,8 @@ public class SeamCarving {
 							} else {
 								numberBack++;
 							}
-						} else if ((!full.contains(vTo)) && ed.from == vTo && ed.capacity > 256 && ed.used > 0) {
+						} else if ((!full.contains(vTo)) && ed.from == vTo
+								&& ed.capacity > 256 && ed.used > 0) {
 							numberBack++;
 						}
 					}
@@ -288,13 +294,13 @@ public class SeamCarving {
 			}
 		}
 	}
-	
+
 	// réduit le flot actuel d'un point vers l'entrée
 	public static void backFlow(Graph g, int v, int numberToRemove) {
 		int passable;
-		int s = g.vertices()-1;
+		int s = g.vertices() - 1;
 		boolean pathFind;
-//		ArrayList<Integer> end = new ArrayList<Integer>();
+		// ArrayList<Integer> end = new ArrayList<Integer>();
 		while (v != s && numberToRemove > 0) {
 			System.out.println("  free : " + v);
 			pathFind = false;
@@ -322,10 +328,10 @@ public class SeamCarving {
 			if (!pathFind) {
 				System.out.println("Problème, chemin introuvable");
 			}
-			
+
 		}
 	}
-	
+
 	public static boolean searchPath(Graph g) {
 		boolean pathFind = false;
 		boolean ended = false;
@@ -336,7 +342,7 @@ public class SeamCarving {
 		ArrayList<Integer> toDo = new ArrayList<Integer>();
 		ArrayList<Integer> view = new ArrayList<Integer>();
 		toDo.add(s);
-		
+
 		while (!ended) {
 			view.add(currentV);
 			for (Edge ed : g.adj(currentV)) {
@@ -360,24 +366,52 @@ public class SeamCarving {
 		}
 		return pathFind;
 	}
-	
-	public static void maxFlow(Graph g) {
-		
+
+	public static ArrayList<Integer> maxFlow(Graph g) {
+		boolean pathFind = false;
+		int vertices = g.vertices();
+		int s = vertices - 1;
+		int t = vertices - 2;
+		int currentV = s;
+		ArrayList<Integer> toDo = new ArrayList<Integer>();
+		ArrayList<Integer> view = new ArrayList<Integer>();
+		toDo.add(s);
+		while (toDo.size() > 0 && currentV != t) {
+			view.add(currentV);
+			for (Edge ed : g.adj(currentV)) {
+				if (ed.from == currentV && !view.contains(ed.other(currentV))
+						&& ed.used < ed.capacity) {
+					toDo.add(ed.other(currentV));
+				}
+			}
+			toDo.remove(0);
+			currentV = toDo.get(0);
+			System.out.println(currentV != t);
+		}
+
+		currentV = t;
+		toDo = new ArrayList<>();
+		while (currentV != s) {
+			for (Edge ed : g.adj(currentV)) {
+				if (ed.to == currentV && view.contains(ed.other(currentV))
+						&& ed.used < ed.capacity) {
+					toDo.add(currentV);
+					currentV = ed.other(currentV);
+				}
+			}
+		}
+		return toDo;
 	}
-	
+
 	public static void main(String[] args) {
 
-		int[][] inter = { 
-				{ 5, 2, 3 },
-				{ 7, 8, 1 },
-				{ 9, 5, 2 },
-				{ 10, 15, 20 }};
-/*		
-		System.out.println(" ------------- lecture img ------------- ");
-		int[][] img = readpgm("ex1");
-		System.out.println(" ------------- interest img ------------- ");
-		int[][] inter = interest(img);
-*/
+		int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20 } };
+		/*
+		 * System.out.println(" ------------- lecture img ------------- ");
+		 * int[][] img = readpgm("ex1");
+		 * System.out.println(" ------------- interest img ------------- ");
+		 * int[][] inter = interest(img);
+		 */
 		Graph g = tograph(inter);
 		g.writeFile("test_img.dot");
 		System.out.println(" ------------- start full Graph ------------- ");
@@ -387,7 +421,8 @@ public class SeamCarving {
 		boolean stillPath = searchPath(g);
 		System.out.println("Path ? " + stillPath);
 		if (stillPath) {
-			System.out.println(" ------------- start full Graph ------------- ");
+			System.out
+					.println(" ------------- start full Graph ------------- ");
 			fullGraph(g);
 			g.writeFile("test2.dot");
 			System.out.println(" ------------- end full Graph ------------- ");

@@ -402,9 +402,20 @@ public class SeamCarving {
 				}
 			}
 		}
+		
+		int k = Integer.MAX_VALUE;
+		for(Edge ed : arrayListE){
+			k = Math.min(k,ed.capacity-ed.used);
+		}
+		for(Edge ed : arrayListE){
+			ed.used += k;
+		}
+		
 		return arrayListE;
 	}
 
+	
+	
 	public static void main(String[] args) {
 
 		int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20 } };

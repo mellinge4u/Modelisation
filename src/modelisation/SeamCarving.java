@@ -374,17 +374,15 @@ public class SeamCarving {
 		ArrayList<Integer> view = new ArrayList<Integer>();
 		toDo.add(s);
 		while (!ended) {
-			view.add(currentV);
 			for (Edge ed : g.adj(currentV)) {
-				if (!view.contains(ed.other(currentV)) 
-						&& ((ed.from == currentV && ed.used < ed.capacity))
-						|| (ed.to == currentV && ed.used > 0)) {
+				if ((!view.contains(ed.other(currentV)))
+						&& (((ed.from == currentV && ed.used < ed.capacity)) || (ed.to == currentV && ed.used > 0))) {
 					toDo.add(ed.other(currentV));
-					break;
 				}
 			}
 			toDo.remove(0);
 			if (toDo.size() > 0 && currentV != t) {
+				view.add(currentV);
 				currentV = toDo.get(0);
 //				System.out.println(currentV != t);
 			} else {
@@ -398,12 +396,10 @@ public class SeamCarving {
 		while (currentV != s) {
 			System.out.println("sommet : " + currentV);
 			for (Edge ed : g.adj(currentV)) {
-				if (ed.to == currentV && view.contains(ed.other(currentV))
-						&& ed.used < ed.capacity) {
-					//toDo.add(currentV);
+				if (view.contains(ed.other(currentV)) && !arrayListE.contains(ed)
+						&& ((ed.to == currentV && ed.used < ed.capacity) || (ed.from == currentV && ed.used > 0))) {
 					arrayListE.add(ed);
 					currentV = ed.other(currentV);
-					
 				}
 			}
 		}
@@ -470,13 +466,12 @@ public class SeamCarving {
 	
 	public static void main(String[] args) {
 
-		// int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20
-		// } };
+		int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20 } };
 
 		System.out.println(" ------------- lecture img ------------- ");
-		int[][] img = readpgm("ex1");
+//		int[][] img = readpgm("ex1");
 		System.out.println(" ------------- interest img ------------- ");
-		int[][] inter = interest(img);
+//		int[][] inter = interest(img);
 		Graph g = tograph(inter);
 		System.out.println(" ------------- start full Graph ------------- ");
 		fullGraph(g);

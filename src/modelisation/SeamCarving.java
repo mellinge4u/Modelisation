@@ -80,7 +80,7 @@ public class SeamCarving {
 					/* fermeture de l'Ã©criture */
 					fileFlux.close();
 					fw.close();
-					System.out.println("success write");
+//					System.out.println("success write");
 				} catch (IOException t) {
 					t.printStackTrace(System.err);
 				}
@@ -149,7 +149,7 @@ public class SeamCarving {
 			for (j = 0; j < width; j++) {
 				k = Math.min(itr[i][j], k);
 			}
-			System.out.println("min " + i + " " + k);
+//			System.out.println("min " + i + " " + k);
 			k = 0; // TODO A SUPPRIMER !!!!! pour réspécter les consigne, mais
 					// mon algo marche mieux avec
 			kVal[i] = k;
@@ -215,10 +215,7 @@ public class SeamCarving {
 			saturation = true;
 			numberBack = 0;
 			int vFrom = toDo.get(0);
-			if (vFrom == 1284) {
-				System.out.println("STOP");
-			}
-			System.out.println("point : " + vFrom);
+//			System.out.println("point : " + vFrom);
 			if (vFrom == t) { // Point d'arrivée
 				toDo.remove(0);
 				vUsed.remove(vFrom);
@@ -302,7 +299,7 @@ public class SeamCarving {
 		boolean pathFind;
 		// ArrayList<Integer> end = new ArrayList<Integer>();
 		while (v != s && numberToRemove > 0) {
-			System.out.println("  free : " + v);
+//			System.out.println("  free : " + v);
 			pathFind = false;
 			if (!pathFind) {
 				for (Edge ed : g.adj(v)) {
@@ -311,10 +308,10 @@ public class SeamCarving {
 						passable = ed.used;
 						if (passable >= numberToRemove) {
 							pathFind = true;
-							System.out.println("    last us " + ed.used);
+//							System.out.println("    last us " + ed.used);
 							ed.used -= numberToRemove;
-							System.out.println("    removed " + numberToRemove);
-							System.out.println("    ed.used " + ed.used);
+//							System.out.println("    removed " + numberToRemove);
+//							System.out.println("    ed.used " + ed.used);
 							v = ed.other(v);
 							break;
 						} else {
@@ -368,7 +365,7 @@ public class SeamCarving {
 	}
 
 	public static ArrayList<Edge> maxFlow(Graph g) {
-		boolean pathFind = false;
+		boolean ended = false;
 		int vertices = g.vertices();
 		int s = vertices - 1;
 		int t = vertices - 2;
@@ -376,7 +373,7 @@ public class SeamCarving {
 		ArrayList<Integer> toDo = new ArrayList<Integer>();
 		ArrayList<Integer> view = new ArrayList<Integer>();
 		toDo.add(s);
-		while (toDo.size() > 0 && currentV != t) {
+		while (!ended) {
 			view.add(currentV);
 			for (Edge ed : g.adj(currentV)) {
 				if (ed.from == currentV && !view.contains(ed.other(currentV))
@@ -385,10 +382,14 @@ public class SeamCarving {
 				}
 			}
 			toDo.remove(0);
-			currentV = toDo.get(0);
-			System.out.println(currentV != t);
+			if (toDo.size() > 0 && currentV != t) {
+				currentV = toDo.get(0);
+//				System.out.println(currentV != t);
+			} else {
+				ended = true;
+			}
 		}
-
+		System.out.println("ICI ?");
 		currentV = t;
 		//toDo = new ArrayList<>();
 		ArrayList<Edge> arrayListE = new ArrayList<>();
@@ -402,7 +403,7 @@ public class SeamCarving {
 				}
 			}
 		}
-		
+		System.out.println("OU LA ?");
 		int k = Integer.MAX_VALUE;
 		for(Edge ed : arrayListE){
 			k = Math.min(k,ed.capacity-ed.used);
@@ -425,24 +426,21 @@ public class SeamCarving {
 		 * System.out.println(" ------------- interest img ------------- ");
 		 * int[][] inter = interest(img);
 		 */
+		System.out.println(" ------------- start ------------- ");
 		Graph g = tograph(inter);
-		g.writeFile("test_img.dot");
 		System.out.println(" ------------- start full Graph ------------- ");
 		fullGraph(g);
 		g.writeFile("test.dot");
 		System.out.println(" ------------- end full Graph ------------- ");
 		boolean stillPath = searchPath(g);
 		System.out.println("Path ? " + stillPath);
-		if (stillPath) {
-			System.out
-					.println(" ------------- start full Graph ------------- ");
-			fullGraph(g);
-			g.writeFile("test2.dot");
-			System.out.println(" ------------- end full Graph ------------- ");
-			stillPath = searchPath(g);
-			System.out.println("Path ? " + stillPath);
-		}
-
+		System.out.println(" ------------- search Path ------------- ");
+		maxFlow(g);
+		System.out.println(" ------------- Path ------------- ");
+		stillPath = searchPath(g);
+		System.out.println("Path ? " + stillPath);
+		
+		
 		System.out.println(" ------------- fin ------------- ");
 	}
 }

@@ -212,6 +212,9 @@ public class SeamCarving {
 			saturation = true;
 			numberBack = 0;
 			int vFrom = toDo.get(0);
+			if (vFrom == 1284) {
+				System.out.println("STOP");
+			}
 			System.out.println("point : " + vFrom);
 			if (vFrom == t) { // Point d'arrivée
 				toDo.remove(0);
@@ -256,7 +259,7 @@ public class SeamCarving {
 					if (saturation) {
 						for (Edge ed : edges) {
 							int vTo = ed.other(vFrom);
-							if (!full.contains(vTo)) {
+							if ((!full.contains(vTo)) && ed.from == vFrom) {
 								if (ed.capacity > 256 && numberBack > 0) {
 									// L'arrête vas vers l'arriere
 									int flowMod = flow/numberBack;
@@ -276,7 +279,7 @@ public class SeamCarving {
 				}
 				// On se retire de la liste de sommet en cours
 				if (saturation) {
-					refreeLine(g, vFrom, flow);
+					backFlow(g, vFrom, flow);
 					full.add(vFrom);
 				}
 				toDo.remove(0);
@@ -286,159 +289,57 @@ public class SeamCarving {
 	}
 	
 	// réduit le flot actuel d'un point vers l'entrée
-	public static void freeLine(Graph g, int v, int numberToRemove) {
-		int vTo = v;
-		int s = g.vertices()-1;
-		boolean foundPath = false;
-		ArrayList<Integer> forbiddenV = new ArrayList<Integer>();
-		while (vTo != s && numberToRemove > 0) {
-			foundPath = false;
-			System.out.println("vTo " + vTo);
-			for(Edge ed : g.adj(vTo)) {
-				if (((ed.to == vTo && ed.capacity < 256 && !forbiddenV.contains(ed.from)) || ed.from == s) && ed.used > 0) {
-					// On vas vers la gauche
-					foundPath = true;
-					if (ed.used >= numberToRemove) {
-						ed.used -= numberToRemove;
-						vTo = ed.from;
-						forbiddenV.add(vTo);
-					} else {
-						// Le flot est trop grand, et doit etre séparée
-						freeLine(g, ed.from, ed.used);
-						numberToRemove -= ed.used;
-						ed.used = 0;
-					}
-					break;
-				}
-			}
-			if (!foundPath) {
-				for(Edge ed : g.adj(vTo)) {
-					if (ed.from == vTo && ed.capacity > 256 && !forbiddenV.contains(ed.to)) {
-						// On vas en haut/bas à gauche
-						foundPath = true;
-						ed.used += numberToRemove;
-						vTo = ed.other(vTo);
-						forbiddenV.add(vTo);
-						break;
-					}
-				}
-			}
-			if (!foundPath) {
-				for(Edge ed : g.adj(vTo)) {
-					if (ed.to == vTo && ed.capacity > 256 && ed.used > 0 && !forbiddenV.contains(ed.from)) {
-						// On vas en haut/bas à droite
-						foundPath = true;
-						if (ed.used > numberToRemove) {
-							ed.used -= numberToRemove;
-							vTo = ed.from;
-							forbiddenV.add(vTo);
-							break;
-						} else {
-							// Le flot est trop grand, et doit etre séparée
-							freeLine(g, ed.from, ed.used);
-							numberToRemove -= ed.used;
-							ed.used = 0;
-						}
-					}
-				}
-			} 
-			if (!foundPath) {
-				for (Edge ed : g.adj(vTo)) {
-					if (ed.from == vTo && ed.capacity < 256 && !forbiddenV.contains(ed.to)) {
-						// On vas vers la droite
-						int capacityFree = ed.capacity - ed.used;
-						if (capacityFree > 0) {
-							ed.used += numberToRemove;
-							vTo = ed.other(vTo);
-							forbiddenV.add(vTo);
-							break;
-						} else {
-							System.out.println("IL Y A UN PROBLEME !!!!!!!!!!!!!");
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	public static void refreeLine(Graph g, int v, int numberToRemove) {
+	public static void backFlow(Graph g, int v, int numberToRemove) {
 		int passable;
 		int s = g.vertices()-1;
 		boolean pathFind;
-		ArrayList<Integer> end = new ArrayList<Integer>();
-		while(v != s) {
+//		ArrayList<Integer> end = new ArrayList<Integer>();
+		while (v != s && numberToRemove > 0) {
 			System.out.println("  free : " + v);
 			pathFind = false;
 			if (!pathFind) {
 				for (Edge ed : g.adj(v)) {
-					if (ed.capacity > 255 && ed.to == v && ed.used > 0 && !end.contains(ed.other(v))) {
-						// arrête diagonal vers la droite
+					if (ed.to == v && ed.used > 0) {
+						// arrête diagonal vers la droite et horizontal gauche
 						passable = ed.used;
-						if (passable > numberToRemove) {
+						if (passable >= numberToRemove) {
 							pathFind = true;
+							System.out.println("    last us " + ed.used);
 							ed.used -= numberToRemove;
+							System.out.println("    removed " + numberToRemove);
+							System.out.println("    ed.used " + ed.used);
 							v = ed.other(v);
 							break;
 						} else {
-							refreeLine(g, ed.other(v), passable);
+							ed.used -= passable;
+							backFlow(g, ed.other(v), passable);
 							numberToRemove -= passable;
 						}
 					}
 				}
 			}
 			if (!pathFind) {
-				for (Edge ed : g.adj(v)) {
-					if (((ed.capacity < 255 && ed.to == v) || ed.from == s) && ed.used > 0 && !end.contains(ed.other(v))) {
-						// arrête horizontale vers la gauche
-						passable = ed.used;
-						if (passable > numberToRemove) {
-							pathFind = true;
-							ed.used -= numberToRemove;
-							v = ed.other(v);
-						} else {
-							refreeLine(g, ed.other(v), passable);
-							numberToRemove -= passable;
-						}
-						break;
-					}
-				}
-			}
-			if (!pathFind) {
-				for (Edge ed : g.adj(v)) {
-					if (ed.capacity > 255 && ed.from == v && !end.contains(ed.other(v))) {
-						// arrête diagonal vers la gauche
-						pathFind = true;
-						ed.used += numberToRemove;
-						v = ed.other(v);
-						end.add(v);
-						break;
-					}
-				}
-			}
-			if (!pathFind) {
-				for (Edge ed : g.adj(v)) {
-					if (ed.capacity < 255 && ed.from == v && (ed.capacity-ed.used) > 0 && !end.contains(ed.other(v))) {
-						// arrête horizontale vers la droite
-						passable = ed.capacity - ed.used;
-						if (passable > numberToRemove) {
-							pathFind = true;
-							ed.used -= numberToRemove;
-							v = ed.other(v);
-							end.add(v);
-						} else {
-							refreeLine(g, ed.other(v), passable);
-							numberToRemove -= passable;
-						}
-						break;
-					}
-				}
-			}
-			if (!pathFind) {
-				System.out.println("T'ES DANS LA MERDE !!!!!");
+				System.out.println("Problème, chemin introuvable");
 			}
 			
 		}
+	}
+	
+	public static boolean searchPath(Graph g) {
+		boolean pathFind = false;
+		int vertices = g.vertices();
+		int s = vertices - 1;
+		int t = vertices - 2;
+		int currentV = s;
+		ArrayList<Integer> toDo = new ArrayList<Integer>();
+		toDo.add(s);
 		
+		while(toDo.size() > 0 && currentV != t) {
+			for(Edge ed : g.adj(currentV)) {
+				
+			}
+		}
+		return pathFind;
 	}
 	
 	public static void maxFlow(Graph g) {
@@ -446,18 +347,18 @@ public class SeamCarving {
 	}
 	
 	public static void main(String[] args) {
-/*
+
 		int[][] inter = { 
 				{ 5, 2, 2, 3 },
 				{ 7, 8, 8, 1 },
 				{ 9, 5, 5, 2 },
 				{ 10, 15, 15, 20 }};
-*/		
+/*		
 		System.out.println(" ------------- lecture img ------------- ");
-		int[][] img = readpgm("ex2");
+		int[][] img = readpgm("ex1");
 		System.out.println(" ------------- interest img ------------- ");
 		int[][] inter = interest(img);
-
+*/
 		Graph g = tograph(inter);
 		g.writeFile("test_img.dot");
 		System.out.println(" ------------- start full Graph ------------- ");

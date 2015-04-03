@@ -329,7 +329,7 @@ public class SeamCarving {
 		}
 	}
 
-	public static boolean searchPath(Graph g) {
+	public static boolean isStillPath(Graph g) {
 		boolean pathFind = false;
 		boolean ended = false;
 		int vertices = g.vertices();
@@ -364,7 +364,7 @@ public class SeamCarving {
 		return pathFind;
 	}
 
-	public static ArrayList<Edge> maxFlow(Graph g) {
+	public static ArrayList<Edge> findPath(Graph g) {
 		boolean ended = false;
 		int vertices = g.vertices();
 		int s = vertices - 1;
@@ -483,13 +483,13 @@ public class SeamCarving {
 		fullGraph(g);
 		g.writeFile("test.dot");
 		System.out.println(" ------------- end full Graph ------------- ");
-		boolean stillPath = searchPath(g);
+		boolean stillPath = isStillPath(g);
 		System.out.println("Path ? " + stillPath);
 		if (stillPath) {
 			System.out.println(" ------------- search Path ------------- ");
-			maxFlow(g);
+			findPath(g);
 			System.out.println(" ------------- Path ------------- ");
-			stillPath = searchPath(g);
+			stillPath = isStillPath(g);
 			System.out.println("Path ? " + stillPath);
 		}
 

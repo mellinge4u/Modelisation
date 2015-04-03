@@ -367,7 +367,7 @@ public class SeamCarving {
 		return pathFind;
 	}
 
-	public static ArrayList<Integer> maxFlow(Graph g) {
+	public static ArrayList<Edge> maxFlow(Graph g) {
 		boolean pathFind = false;
 		int vertices = g.vertices();
 		int s = vertices - 1;
@@ -390,17 +390,19 @@ public class SeamCarving {
 		}
 
 		currentV = t;
-		toDo = new ArrayList<>();
+		//toDo = new ArrayList<>();
+		ArrayList<Edge> arrayListE = new ArrayList<>();
 		while (currentV != s) {
 			for (Edge ed : g.adj(currentV)) {
 				if (ed.to == currentV && view.contains(ed.other(currentV))
 						&& ed.used < ed.capacity) {
-					toDo.add(currentV);
+					//toDo.add(currentV);
+					arrayListE.add(ed);
 					currentV = ed.other(currentV);
 				}
 			}
 		}
-		return toDo;
+		return arrayListE;
 	}
 
 	public static void main(String[] args) {

@@ -376,9 +376,11 @@ public class SeamCarving {
 		while (!ended) {
 			view.add(currentV);
 			for (Edge ed : g.adj(currentV)) {
-				if (ed.from == currentV && !view.contains(ed.other(currentV))
-						&& ed.used < ed.capacity) {
+				if (!view.contains(ed.other(currentV)) 
+						&& ((ed.from == currentV && ed.used < ed.capacity))
+						|| (ed.to == currentV && ed.used > 0)) {
 					toDo.add(ed.other(currentV));
+					break;
 				}
 			}
 			toDo.remove(0);
@@ -388,18 +390,20 @@ public class SeamCarving {
 			} else {
 				ended = true;
 			}
-		}
+		}	
 		System.out.println("ICI ?");
 		currentV = t;
 		//toDo = new ArrayList<>();
 		ArrayList<Edge> arrayListE = new ArrayList<>();
 		while (currentV != s) {
+			System.out.println("sommet : " + currentV);
 			for (Edge ed : g.adj(currentV)) {
 				if (ed.to == currentV && view.contains(ed.other(currentV))
 						&& ed.used < ed.capacity) {
 					//toDo.add(currentV);
 					arrayListE.add(ed);
 					currentV = ed.other(currentV);
+					
 				}
 			}
 		}
@@ -481,13 +485,14 @@ public class SeamCarving {
 		System.out.println(" ------------- end full Graph ------------- ");
 		boolean stillPath = searchPath(g);
 		System.out.println("Path ? " + stillPath);
-		System.out.println(" ------------- search Path ------------- ");
-		maxFlow(g);
-		System.out.println(" ------------- Path ------------- ");
-		stillPath = searchPath(g);
-		System.out.println("Path ? " + stillPath);
-		
-		
+		if (stillPath) {
+			System.out.println(" ------------- search Path ------------- ");
+			maxFlow(g);
+			System.out.println(" ------------- Path ------------- ");
+			stillPath = searchPath(g);
+			System.out.println("Path ? " + stillPath);
+		}
+
 		System.out.println(" ------------- fin ------------- ");
 	}
 }

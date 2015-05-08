@@ -80,7 +80,7 @@ public class SeamCarving {
 					/* fermeture de l'Ã©criture */
 					fileFlux.close();
 					fw.close();
-//					System.out.println("success write");
+					// System.out.println("success write");
 				} catch (IOException t) {
 					t.printStackTrace(System.err);
 				}
@@ -149,7 +149,7 @@ public class SeamCarving {
 			for (j = 0; j < width; j++) {
 				k = Math.min(itr[i][j], k);
 			}
-//			System.out.println("min " + i + " " + k);
+			// System.out.println("min " + i + " " + k);
 			k = 0; // TODO A SUPPRIMER !!!!! pour réspécter les consigne, mais
 					// mon algo marche mieux avec
 			kVal[i] = k;
@@ -215,7 +215,7 @@ public class SeamCarving {
 			saturation = true;
 			numberBack = 0;
 			int vFrom = toDo.get(0);
-//			System.out.println("point : " + vFrom);
+			// System.out.println("point : " + vFrom);
 			if (vFrom == t) { // Point d'arrivée
 				toDo.remove(0);
 				vUsed.remove(vFrom);
@@ -264,8 +264,8 @@ public class SeamCarving {
 					if (saturation) {
 						for (Edge ed : edges) {
 							int vTo = ed.other(vFrom);
-							if ((!full.contains(vTo)) && ed.capacity > 256
-									&& numberBack > 0) {
+							if (vFrom == ed.from && (!full.contains(vTo))
+									&& ed.capacity > 256 && numberBack > 0) {
 								// L'arrête vas vers la diagonal
 								int flowMod = flow / numberBack;
 								ed.used += (flowMod);
@@ -299,7 +299,7 @@ public class SeamCarving {
 		boolean pathFind;
 		// ArrayList<Integer> end = new ArrayList<Integer>();
 		while (v != s && numberToRemove > 0) {
-//			System.out.println("  free : " + v);
+			// System.out.println("  free : " + v);
 			pathFind = false;
 			if (!pathFind) {
 				for (Edge ed : g.adj(v)) {
@@ -308,10 +308,11 @@ public class SeamCarving {
 						passable = ed.used;
 						if (passable >= numberToRemove) {
 							pathFind = true;
-//							System.out.println("    last us " + ed.used);
+							// System.out.println("    last us " + ed.used);
 							ed.used -= numberToRemove;
-//							System.out.println("    removed " + numberToRemove);
-//							System.out.println("    ed.used " + ed.used);
+							// System.out.println("    removed " +
+							// numberToRemove);
+							// System.out.println("    ed.used " + ed.used);
 							v = ed.other(v);
 							break;
 						} else {
@@ -341,26 +342,29 @@ public class SeamCarving {
 		toDo.add(s);
 
 		while (!ended) {
-			System.out.println("find path : " + currentV);
+//			System.out.println("find path : " + currentV);
 			view.add(currentV);
+			if (currentV == t) {
+				pathFind = true;
+				break;
+			}
 			for (Edge ed : g.adj(currentV)) {
-				if (ed.from == currentV && !view.contains(ed.other(currentV))
-						&& ed.used < ed.capacity) {
-					toDo.add(ed.other(currentV));
-				} else if (ed.to == currentV
-						&& !view.contains(ed.other(currentV)) && ed.used > 0) {
-					toDo.add(ed.other(currentV));
-				}
+				int next = ed.other(currentV);
+				if (!view.contains(next)
+						&& ((ed.from == currentV && ed.used < ed.capacity) || (ed.to == currentV)
+								&& ed.used > 0)) {
+					
+					if (!toDo.contains(next)) {
+						toDo.add(next);
+					}
+				}	
 			}
 			toDo.remove(0);
-			if (toDo.size() > 0 && currentV != t) {
+			if (toDo.size() > 0) {
 				currentV = toDo.get(0);
 			} else {
 				ended = true;
 			}
-		}
-		if (currentV == t) {
-			pathFind = true;
 		}
 		return pathFind;
 	}
@@ -375,7 +379,6 @@ public class SeamCarving {
 		ArrayList<Integer> view = new ArrayList<Integer>();
 		toDo.add(s);
 		while (!ended) {
-			System.out.println("find path : " + currentV);
 			for (Edge ed : g.adj(currentV)) {
 				if ((!view.contains(ed.other(currentV)))
 						&& (((ed.from == currentV && ed.used < ed.capacity)) || (ed.to == currentV && ed.used > 0))) {
@@ -389,12 +392,13 @@ public class SeamCarving {
 			} else {
 				ended = true;
 			}
-		}	
+		}
 		currentV = t;
 		ArrayList<Edge> arrayListE = new ArrayList<>();
 		while (currentV != s) {
 			for (Edge ed : g.adj(currentV)) {
-				if (view.contains(ed.other(currentV)) && !arrayListE.contains(ed)
+				if (view.contains(ed.other(currentV))
+						&& !arrayListE.contains(ed)
 						&& ((ed.to == currentV && ed.used < ed.capacity) || (ed.from == currentV && ed.used > 0))) {
 					arrayListE.add(ed);
 					currentV = ed.other(currentV);
@@ -404,19 +408,19 @@ public class SeamCarving {
 		int k = Integer.MAX_VALUE;
 		int notUsed;
 		currentV = t;
-		for(Edge ed : arrayListE){
+		for (Edge ed : arrayListE) {
 			if (currentV == ed.to) {
-				notUsed = ed.capacity-ed.used;
+				notUsed = ed.capacity - ed.used;
 			} else {
 				notUsed = ed.used;
 			}
-			k = Math.min(k,notUsed);
+			k = Math.min(k, notUsed);
 			currentV = ed.other(currentV);
 		}
-		for(Edge ed : arrayListE){
+		for (Edge ed : arrayListE) {
 			ed.used += k;
 		}
-		
+
 		return arrayListE;
 	}
 
@@ -447,7 +451,7 @@ public class SeamCarving {
 			} else {
 				ended = true;
 			}
-		}	
+		}
 
 		int i, j, height, width;
 		height = 0;
@@ -455,48 +459,47 @@ public class SeamCarving {
 		for (Edge ed : g.adj(s)) {
 			height++;
 		}
-		width = (vertices-1) / height;
+		width = (vertices - 1) / height;
 		ArrayList<Integer> coupeMin;
 		coupeMin = new ArrayList<>();
 		for (i = 0; i < height; i++) {
 			select = false;
-			for(j = 0; j < width ; j++){
-				if(!view.contains((j*height)+i )){
-					coupeMin.add(((j-1)*height)+i);
+			for (j = 0; j < width; j++) {
+				if (!view.contains((j * height) + i)) {
+					coupeMin.add(((j - 1) * height) + i);
 					select = true;
 					break;
 				}
 			}
 			if (!select) {
-				coupeMin.add(((j-1)*height)+i);
+				coupeMin.add(((j - 1) * height) + i);
 			}
 		}
 		return coupeMin;
-	}	
-	
+	}
+
 	public static int[][] toImg(int[][] img, ArrayList<Integer> coup) {
 		int height = img.length;
 		int width = img[0].length;
-		int[][] newImg = new int[height][width-1];
+		int[][] newImg = new int[height][width - 1];
 		int i = 0;
 		int j = 0;
 		int pass = 0;
-		
-		for (i=0; i<height; i++) {
-			pass = coup.get(i)/height;
-			for (j=0; j<width; j++) {
+
+		for (i = 0; i < height; i++) {
+			pass = coup.get(i) / height;
+			for (j = 0; j < width; j++) {
 				if (j < pass) {
 					newImg[i][j] = img[i][j];
 				} else if (j > pass) {
-					newImg[i][j-1] = img[i][j];
+					newImg[i][j - 1] = img[i][j];
 				}
 			}
 		}
-		
-		
+
 		return newImg;
 	}
-	
+
 	public static void main(String[] args) {
 
 		int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20 } };
@@ -504,10 +507,10 @@ public class SeamCarving {
 		System.out.println(" ------------- lecture img ------------- ");
 		int[][] img = readpgm("ex2");
 		System.out.println(" ------------- interest img ------------- ");
-//		int[][] inter = interest(img);
+		inter = interest(img);
 		Graph g = tograph(inter);
 		System.out.println(" ------------- start full Graph ------------- ");
-//		fullGraph(g);
+		fullGraph(g);
 		System.out.println(" ------------- end full Graph ------------- ");
 		boolean stillPath = isStillPath(g);
 		System.out.println("Existe-t-il un chemin ? " + stillPath);
@@ -518,6 +521,7 @@ public class SeamCarving {
 			stillPath = isStillPath(g);
 			System.out.println("Existe-t-il un chemin ? " + stillPath);
 		}
+		g.writeFile("fg2");
 		ArrayList<Integer> coup = coupeMin(g);
 		System.out.println(coup);
 		int[][] img2 = toImg(inter, coup);

@@ -297,9 +297,7 @@ public class SeamCarving {
 		int passable;
 		int s = g.vertices() - 1;
 		boolean pathFind;
-		// ArrayList<Integer> end = new ArrayList<Integer>();
 		while (v != s && numberToRemove > 0) {
-			// System.out.println("  free : " + v);
 			pathFind = false;
 			if (!pathFind) {
 				for (Edge ed : g.adj(v)) {
@@ -308,11 +306,7 @@ public class SeamCarving {
 						passable = ed.used;
 						if (passable >= numberToRemove) {
 							pathFind = true;
-							// System.out.println("    last us " + ed.used);
 							ed.used -= numberToRemove;
-							// System.out.println("    removed " +
-							// numberToRemove);
-							// System.out.println("    ed.used " + ed.used);
 							v = ed.other(v);
 							break;
 						} else {
@@ -326,7 +320,6 @@ public class SeamCarving {
 			if (!pathFind) {
 				System.out.println("Problème, chemin introuvable");
 			}
-
 		}
 	}
 
@@ -342,7 +335,6 @@ public class SeamCarving {
 		toDo.add(s);
 
 		while (!ended) {
-//			System.out.println("find path : " + currentV);
 			view.add(currentV);
 			if (currentV == t) {
 				pathFind = true;
@@ -353,11 +345,11 @@ public class SeamCarving {
 				if (!view.contains(next)
 						&& ((ed.from == currentV && ed.used < ed.capacity) || (ed.to == currentV)
 								&& ed.used > 0)) {
-					
+
 					if (!toDo.contains(next)) {
 						toDo.add(next);
 					}
-				}	
+				}
 			}
 			toDo.remove(0);
 			if (toDo.size() > 0) {
@@ -369,39 +361,160 @@ public class SeamCarving {
 		return pathFind;
 	}
 
-	public static ArrayList<Edge> findPath(Graph g) {
+	public static boolean newFindPath(Graph g) {
+		HashMap<Integer, Integer> origin = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> weight = new HashMap<Integer, Integer>();
+		ArrayList<Integer> done = new ArrayList<Integer>();
+		boolean pathFind = true;
 		boolean ended = false;
 		int vertices = g.vertices();
 		int s = vertices - 1;
 		int t = vertices - 2;
 		int currentV = s;
+		int nextV;
+		int count = 0;
+		weight.put(s, 0);
+
+		System.out
+				.println("      |/| On parcourt tout le graph avec Dijkstra |\\|");
+		while (!ended) {
+			count++;
+			if (count%1000== 0) {
+				System.out.println("        && " + count + "/" + s);
+			}
+//			System.out.println("        ||#|| Sommet n° " + currentV);
+			for (Edge ed : g.adj(currentV)) {
+				nextV = ed.other(currentV);
+				if (!done.contains(nextV)) {
+					int w = weight.get(currentV) + 1;
+					if (ed.from == currentV && ed.used < ed.capacity) {
+						Integer oldW = weight.putIfAbsent(nextV, w);
+						if (oldW != null && oldW > w) {
+							weight.put(nextV, w);
+							origin.put(nextV, currentV);
+						} else if (oldW == null) {
+							origin.put(nextV, currentV);
+						}
+					} else if (ed.to == currentV && ed.used > 0) {
+						Integer oldW = weight.putIfAbsent(nextV, w);
+						if (oldW != null && oldW > w) {
+							weight.put(nextV, w);
+							origin.put(nextV, currentV);
+						} else if (oldW == null) {
+							origin.put(nextV, currentV);
+						}
+					}
+				}
+			}
+			weight.remove(currentV);
+			done.add(currentV);
+			if (weight.isEmpty()) {
+				ended = true;
+				pathFind = false;
+			} else {
+				int min = Integer.MAX_VALUE;
+				int v = -1;
+				for (Integer k : weight.keySet()) {
+					if (!done.contains(k) && min > weight.get(k)) {
+						min = weight.get(k);
+						v = k;
+					}
+				}
+				currentV = v;
+				if (currentV == t) {
+					ended = true;
+				}
+			}
+		}
+
+		System.out.println("      |/| On retrace le chemin |\\|");
+		ArrayList<Edge> path = new ArrayList<Edge>();
+		if (pathFind) {
+			int next;
+			int min = Integer.MAX_VALUE;
+			while (currentV != s) {
+				// System.out.println("        ||#|| Sommet n° " + currentV);
+				next = origin.get(currentV);
+				for (Edge ed : g.adj(currentV)) {
+					if (ed.other(currentV) == next) {
+						path.add(ed);
+						if (ed.to == currentV && min > ed.capacity - ed.used) {
+							min = ed.capacity - ed.used;
+						} else if (ed.from == currentV && min > ed.used) {
+							min = ed.used;
+						}
+					}
+				}
+				currentV = next;
+			}
+			System.out.println("      |/| On augemente le flot |\\|");
+			currentV = t;
+			for (Edge ed : path) {
+				if (ed.to == currentV) {
+					ed.used += min;
+					currentV = ed.other(currentV);
+				} else if (ed.from == currentV) {
+					ed.used -= min;
+					currentV = ed.other(currentV);
+				} else {
+					System.out.println("Il y a un problème grave !!!");
+				}
+			}
+		}
+
+		return pathFind;
+	}
+
+	public static boolean findPath(Graph g) {
+		System.out.println("## looking for new path ##");
+		boolean ended = false;
+		int vertices = g.vertices();
+		int s = vertices - 1;
+		int t = vertices - 2;
+		int currentV = s;
+		boolean pathFind = false;
 		ArrayList<Integer> toDo = new ArrayList<Integer>();
 		ArrayList<Integer> view = new ArrayList<Integer>();
 		toDo.add(s);
 		while (!ended) {
+			view.add(currentV);
+			if (currentV == t) {
+				pathFind = true;
+				break;
+			}
 			for (Edge ed : g.adj(currentV)) {
-				if ((!view.contains(ed.other(currentV)))
-						&& (((ed.from == currentV && ed.used < ed.capacity)) || (ed.to == currentV && ed.used > 0))) {
-					toDo.add(ed.other(currentV));
+				int next = ed.other(currentV);
+				if (!view.contains(next)
+						&& ((ed.from == currentV && ed.used < ed.capacity) || (ed.to == currentV && ed.used > 0))) {
+					if (!toDo.contains(next)) {
+						toDo.add(next);
+					}
 				}
 			}
 			toDo.remove(0);
-			if (toDo.size() > 0 && currentV != t) {
-				view.add(currentV);
+			if (toDo.size() > 0) {
 				currentV = toDo.get(0);
 			} else {
 				ended = true;
 			}
 		}
+		if (!pathFind) {
+			return false;
+		}
+
+		System.out.println("## a new path exist ##");
 		currentV = t;
 		ArrayList<Edge> arrayListE = new ArrayList<>();
+
 		while (currentV != s) {
+			System.out.println(currentV);
 			for (Edge ed : g.adj(currentV)) {
-				if (view.contains(ed.other(currentV))
+				int next = ed.other(currentV);
+				if (!view.contains(next)
 						&& !arrayListE.contains(ed)
-						&& ((ed.to == currentV && ed.used < ed.capacity) || (ed.from == currentV && ed.used > 0))) {
+						&& ((ed.to == currentV && ed.used < ed.capacity) || (ed.from == currentV)
+								&& ed.used > 0)) {
 					arrayListE.add(ed);
-					currentV = ed.other(currentV);
 				}
 			}
 		}
@@ -421,7 +534,64 @@ public class SeamCarving {
 			ed.used += k;
 		}
 
-		return arrayListE;
+		return true;
+	}
+
+	public static ArrayList<Integer> newCoupeMin(Graph g) {
+		ArrayList<Integer> done = new ArrayList<Integer>();
+		ArrayList<Integer> toDo = new ArrayList<Integer>();
+		ArrayList<Integer> coupeMin = new ArrayList<Integer>();
+		boolean ended = false;
+		int vertices = g.vertices();
+		int s = vertices - 1;
+		int t = vertices - 2;
+		int currentV = s;
+		int nextV;
+		toDo.add(s);
+
+		while (!toDo.isEmpty() && !ended) {
+			for (Edge ed : g.adj(currentV)) {
+				nextV = ed.other(currentV);
+				if (!done.contains(nextV) && !toDo.contains(nextV)) {
+					if (ed.from == currentV && ed.used < ed.capacity) {
+						toDo.add(nextV);
+					} else if (ed.to == currentV && ed.used > 0) {
+						toDo.add(nextV);
+					}
+				}
+			}
+			toDo.remove(0);
+			done.add(currentV);
+			if (!toDo.isEmpty()) {
+				currentV = toDo.get(0);
+				if (currentV == t) {
+					ended = true;
+				}
+			}
+		}
+
+		int i, j, height, width;
+		height = 0;
+		boolean select = false;
+		for (Edge ed : g.adj(s)) {
+			height++;
+		}
+		width = (vertices - 1) / height;
+		for (i = 0; i < height; i++) {
+			select = false;
+			for (j = 0; j < width; j++) {
+				if (!done.contains((j * height) + i)) {
+					coupeMin.add(((j - 1) * height) + i);
+					select = true;
+					break;
+				}
+			}
+			if (!select) {
+				coupeMin.add(((j - 1) * height) + i);
+			}
+		}
+
+		return coupeMin;
 	}
 
 	public static ArrayList<Integer> coupeMin(Graph g) {
@@ -502,32 +672,53 @@ public class SeamCarving {
 
 	public static void main(String[] args) {
 
-		int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20 } };
+		/*
+		 * int[][] inter = { { 5, 2, 3 }, { 7, 8, 1 }, { 9, 5, 2 }, { 10, 15, 20
+		 * } };
+		 * 
+		 * System.out.println(" -------------    lecture img   ------------- ");
+		 * int[][] img = readpgm("ex2");
+		 * System.out.println(" -------------   interest img   ------------- ");
+		 * inter = interest(img); Graph g = tograph(inter);
+		 * System.out.println(" ------------- start full Graph ------------- ");
+		 * fullGraph(g);
+		 * System.out.println(" -------------  end full Graph  ------------- ");
+		 * 
+		 * while (newFindPath(g)) ;
+		 * 
+		 * System.out.println(" -------------  Graph completed ------------- ");
+		 * g.writeFile("fg2"); ArrayList<Integer> coup = newCoupeMin(g);
+		 * System.out.println(" -------------  Coup min done   ------------- ");
+		 * System.out.println(coup); int[][] img2 = toImg(img, coup); //
+		 * printImg(img2); writepgm(img, "ex2_rewrite"); writepgm(img2,
+		 * "ex2_coup"); System.out.println(" ------------- fin ------------- ");
+		 */
 
-		System.out.println(" ------------- lecture img ------------- ");
-		int[][] img = readpgm("ex2");
-		System.out.println(" ------------- interest img ------------- ");
-		inter = interest(img);
-		Graph g = tograph(inter);
-		System.out.println(" ------------- start full Graph ------------- ");
-		fullGraph(g);
-		System.out.println(" ------------- end full Graph ------------- ");
-		boolean stillPath = isStillPath(g);
-		System.out.println("Existe-t-il un chemin ? " + stillPath);
-		while (stillPath) {
-			System.out.println(" ------------- find Path ------------- ");
-			findPath(g);
-			System.out.println(" ------------- end find Path ------------- ");
-			stillPath = isStillPath(g);
-			System.out.println("Existe-t-il un chemin ? " + stillPath);
+		String fileName = "ex1";
+		int[][] inter;
+		int[][] img = readpgm(fileName);
+
+		for (int i = 0; i < 10; i++) {
+			System.out.println(" ------------- " + i + " ------------- ");
+			inter = interest(img);
+			Graph g = tograph(inter);
+			System.out.println("  #- fullgraph -#");
+			fullGraph(g);
+			System.out.println("  #- findPath -#");
+			int j = 1;
+			System.out.println("    +- findPath " + j++ + " -+");
+			while (newFindPath(g)) {
+				System.out.println("    +- findPath " + j++ + " -+");
+			}
+			// g.writeFile(fileName + "_graph");
+			System.out.println("  #- coupMin -#");
+			ArrayList<Integer> coup = newCoupeMin(g);
+			System.out.println("  #- tiImg -#");
+			img = toImg(img, coup);
 		}
-		g.writeFile("fg2");
-		ArrayList<Integer> coup = coupeMin(g);
-		System.out.println(coup);
-		int[][] img2 = toImg(inter, coup);
-//		printImg(img2);
-		writepgm(img, "ex2_2");
-		writepgm(img2, "new_test");
+
+		writepgm(img, fileName + "_coup");
 		System.out.println(" ------------- fin ------------- ");
+
 	}
 }

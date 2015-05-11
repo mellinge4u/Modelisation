@@ -130,7 +130,7 @@ public class SeamCarving {
 		}
 	}
 
-	public static Graph tograph(int[][] itr) {
+	public static Graph tograph(int[][] itr,int pix1, int pix2) {
 		int width = itr[0].length;
 		int height = itr.length;
 		int node = width * height + 2;
@@ -140,10 +140,19 @@ public class SeamCarving {
 		int infinite = Integer.MAX_VALUE;
 		kVal = new int[height];
 
+		int pix1x = pix1 / height;
+		int pix1y = pix1%height;
+		int pix2x = pix2 / height;
+		int pix2y = pix2%height;
+		int ix = 0;
+		int iy = 0;
+		
 		Graph g = new Graph(node);
 
 		/* liaison entre (i,j) et (i,j+1) */
 		for (i = 0; i < height; i++) {
+			ix = i / height;
+			iy = i % height;
 			k = Integer.MAX_VALUE;
 			for (j = 0; j < width; j++) {
 				k = Math.min(itr[i][j], k);
@@ -153,8 +162,13 @@ public class SeamCarving {
 					// mon algo marche mieux avec
 			kVal[i] = k;
 			for (j = 0; j < width - 1; j++) {
+				if((pix1x <= ix && ix <= pix2x) && (pix1y <= iy && iy <= pix2y) && (pix1 < pix2)){
+					g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i,
+							itr[i][j], Integer.MAX_VALUE));
+				} else {
 				g.addEdge(new Edge((j * height) + i, ((j + 1) * height) + i,
 						itr[i][j], k));
+				}
 			}
 		}
 
@@ -722,6 +736,10 @@ public class SeamCarving {
 		return newImg;
 	}
 
+	
+	
+	
+	
 	public static void main(String[] args) {
 
 		/*
@@ -753,7 +771,7 @@ public class SeamCarving {
 		for (int i = 0; i < 10; i++) {
 			System.out.println(" ------------- " + i + " ------------- ");
 			inter = interest(img);
-			Graph g = tograph(inter);
+			Graph g = tograph(inter,0,0);
 			System.out.println("  +- fullgraph");
 			fullGraph(g);
 			System.out.println("  +- findPath");

@@ -1,7 +1,6 @@
 package modelisation;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class SeamCarving {
@@ -175,8 +174,7 @@ public class SeamCarving {
 		 */
 		for (i = 0; i < height; i++) {
 			for (j = 1; j < width; j++) {
-				// g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i,
-				// infinite, 0));
+//				g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i, infinite, 0));
 				if (i != 0) {
 					g.addEdge(new Edge((j * height) + i, ((j - 1) * height) + i
 							- 1, infinite, 0));
@@ -375,12 +373,11 @@ public class SeamCarving {
 		int count = 0;
 		weight.put(s, 0);
 
-		System.out
-				.println("      |/| On parcourt tout le graph avec Dijkstra |\\|");
+//		System.out.println("      |/| On parcourt tout le graph avec Dijkstra |\\|");
 		while (!ended) {
 			count++;
 			if (count%1000== 0) {
-				System.out.println("        && " + count + "/" + s);
+//				System.out.println("        && " + count + "/" + s);
 			}
 //			System.out.println("        ||#|| Sommet n° " + currentV);
 			for (Edge ed : g.adj(currentV)) {
@@ -427,7 +424,7 @@ public class SeamCarving {
 			}
 		}
 
-		System.out.println("      |/| On retrace le chemin |\\|");
+//		System.out.println("      |/| On retrace le chemin |\\|");
 		ArrayList<Edge> path = new ArrayList<Edge>();
 		if (pathFind) {
 			int next;
@@ -447,7 +444,7 @@ public class SeamCarving {
 				}
 				currentV = next;
 			}
-			System.out.println("      |/| On augemente le flot |\\|");
+//			System.out.println("      |/| On augemente le flot |\\|");
 			currentV = t;
 			for (Edge ed : path) {
 				if (ed.to == currentV) {
@@ -457,7 +454,7 @@ public class SeamCarving {
 					ed.used -= min;
 					currentV = ed.other(currentV);
 				} else {
-					System.out.println("Il y a un problème grave !!!");
+//					System.out.println("Il y a un problème grave !!!");
 				}
 			}
 		}
@@ -465,6 +462,61 @@ public class SeamCarving {
 		return pathFind;
 	}
 
+	public static void fordFulkerson(Graph g) {
+		int vertices = g.vertices();
+		int s = vertices - 1;
+		int t = vertices - 2;
+		boolean sommetMarque;
+		ArrayList<Integer> marque = new ArrayList<Integer>();
+		
+		boolean flotMax = false;
+		
+		while(!flotMax) {
+			marque.add(s);
+			sommetMarque = true;
+			while(sommetMarque) {
+				sommetMarque = false;
+				for (Integer v : marque) {
+					for (Edge ed : g.adj(v)) {
+						if ((ed.from == v && ed.used < ed.capacity)||(ed.to == v && ed.used > 0)) { // f (i,j) < c(i,j) ou f (j,i) > 0 
+							marque.add(ed.other(v));
+							sommetMarque = true;
+						}
+					}
+				}
+			}
+			if (marque.contains(t)) {
+				
+			}
+		}
+		
+		/*
+		 * 	Initialisation par un flot initial réalisable (f = 0) 
+		 * 	Tant que le flot n’est pas maximal 
+		 * 		Marquage de la source s 
+		 * 		Tant qu’on marque des sommets 
+		 * 			Pour tout sommet marqué i 
+		 * 				Marquer les sommets j non marqués tq 
+		 * 				f (i,j) < c(i,j) ou f (j,i) > 0 
+		 * 			Fin pour 
+		 * 		Fin Tant que 
+		 * 		Si le puits t n’est pas marqué alors le flot est maximal 
+		 * 		Sinon amélioration du Flot 
+		 * Fin Tant que
+		 */
+	}
+
+	public static void ameliorer(Graph g) {
+		/*
+		 * trouver une chaîne qui a permis de marquer t et calculer e' =
+		 * min(e'1,e'2) > 0 avec e'1 = min{c(ip,ip+1) e' f (ip,ip+1) avec (ip,ip+1)
+		 * e' e' (arête directe)} e'2 = min{f (ip+1,ip) avec (ip+1,ip) e' e' (arête
+		 * inverse)} trouver le nouveau e'ot f 0 : Si (ip,ip+1) e' e' (arête
+		 * directe) alors f 0(ip,ip+1) = f (ip,ip+1) + e' Si (ip+1,ip) e' e' (arête
+		 * inverse) alors f 0(ip,ip+1) = f (ip,ip+1) e' e'
+		 */
+	}
+	
 	public static boolean findPath(Graph g) {
 		System.out.println("## looking for new path ##");
 		boolean ended = false;
@@ -694,7 +746,7 @@ public class SeamCarving {
 		 * "ex2_coup"); System.out.println(" ------------- fin ------------- ");
 		 */
 
-		String fileName = "ex1";
+		String fileName = "ex4";
 		int[][] inter;
 		int[][] img = readpgm(fileName);
 
@@ -702,18 +754,18 @@ public class SeamCarving {
 			System.out.println(" ------------- " + i + " ------------- ");
 			inter = interest(img);
 			Graph g = tograph(inter);
-			System.out.println("  #- fullgraph -#");
+			System.out.println("  +- fullgraph");
 			fullGraph(g);
-			System.out.println("  #- findPath -#");
+			System.out.println("  +- findPath");
 			int j = 1;
-			System.out.println("    +- findPath " + j++ + " -+");
+			System.out.println("  | +- findPath " + j++);
 			while (newFindPath(g)) {
-				System.out.println("    +- findPath " + j++ + " -+");
+				System.out.println("  | +- findPath " + j++);
 			}
 			// g.writeFile(fileName + "_graph");
-			System.out.println("  #- coupMin -#");
+			System.out.println("  #- coupMin");
 			ArrayList<Integer> coup = newCoupeMin(g);
-			System.out.println("  #- tiImg -#");
+			System.out.println("  #- tiImg");
 			img = toImg(img, coup);
 		}
 
